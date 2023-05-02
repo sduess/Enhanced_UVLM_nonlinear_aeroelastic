@@ -1,4 +1,6 @@
 [submodule "lib/sharpy"]
 	path = lib/sharpy
 	url = https://github.com/ImperialCollegeLondon/sharpy
-
+[submodule "lib/flexop_model"]
+	path = lib/flexop_model
+	url = https://github.com/sduess/flexop_model
