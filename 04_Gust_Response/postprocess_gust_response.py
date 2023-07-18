@@ -43,16 +43,25 @@ def write_results(data, case,dict_parameters_info, result_folder):
                header= get_header_with_parameter_and_unit(dict_parameters_info))
 
 def main():         
-    list_cases = ['superflexop_free_gust_L_10_I_10_p_0_cfl_0']
+    case_string_format =  'superflexop_free_gust_L_{:g}_I_{:g}_p_{:g}_cfl_{:g}'
+
+    list_gust_lengths = [5, 10, 20, 40, 80, 100]
+    list_gust_intensity = [10]
+    list_cfl1 = [1, 0]
+    list_polars = [0] #[0, 1]
+    
     SHARPY_output_folder = './output/'
     result_folder = route_dir + '/results_data/'
     dict_parameters_info = {
                                 'para_labels': ['z/s', 'OOP', 'MT', 'Pitch'],
                            }
-    
-    for case in list_cases:
-        data = get_time_history(SHARPY_output_folder,  case)
-        write_results(data, case,dict_parameters_info, result_folder)
+    for gust_length in list_gust_lengths:
+        for gust_intensity in list_gust_intensity:
+            for cfl1 in list_cfl1:
+                for polars in list_polars:
+                    case_name = case_string_format.format(gust_length, gust_intensity, polars, cfl1)
+                    data = get_time_history(SHARPY_output_folder,  case_name)
+                    write_results(data, case_name,dict_parameters_info, result_folder)
 
 
 if __name__ == '__main__':
