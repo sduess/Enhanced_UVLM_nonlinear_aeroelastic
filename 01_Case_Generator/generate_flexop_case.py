@@ -11,28 +11,12 @@ output_route = './output/'
 
 def generate_flexop_case(u_inf,
                         rho,
+                        flow,
                         initial_trim_values,
                         case_name,
                         **kwargs):
     
-    # Set Flow
-    flow = ['BeamLoader', 
-            'AerogridLoader',
-            'AerogridPlot',
-            'BeamPlot',
-            'StaticCoupled',
-            'StaticTrim',
-            'BeamPlot',
-            'AerogridPlot',
-            'AeroForcesCalculator',
-            'DynamicCoupled',
-           ]      
 
-    if not kwargs.get('dynamic', False):
-        flow.remove('DynaimcCoupled')
-    
-    if not kwargs.get('use_trim', False):
-        flow.remove('StaticTrim')
 
     # Set Aircraft trim
     alpha =  initial_trim_values['alpha'] 

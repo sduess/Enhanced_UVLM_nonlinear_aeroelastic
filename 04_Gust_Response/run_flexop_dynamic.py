@@ -49,6 +49,26 @@ if simulation_settings['wake_discretisation']:
     print(simulation_settings)
 else:
     dict_wake_shape = None
+# Set Flow
+flow = ['BeamLoader', 
+        'AerogridLoader',
+        'AerogridPlot',
+        'BeamPlot',
+        'StaticCoupled',
+        'StaticTrim',
+        'BeamPlot',
+        'AerogridPlot',
+        'AeroForcesCalculator',
+        'DynamicCoupled',
+        ]      
+
+if not simulation_settings['dynamic']:
+    flow.remove('DynaimcCoupled')
+
+if not simulation_settings['use_trim']:
+    flow.remove('StaticTrim')
+else:
+    flow.remove('StaticCoupled')
 
 # Loop over various gust lengths    
 list_gust_lengths = [10] #[5, 10, 20, 40, 80, 100]
@@ -64,6 +84,7 @@ for gust_length in list_gust_lengths:
     # Generate model and start simulation
     flexop_model = generate_flexop_case(u_inf,
                                         rho,
+                                        flow,
                                         initial_trim_values,
                                         case_name,
                                         gust_settings=gust_settings,
