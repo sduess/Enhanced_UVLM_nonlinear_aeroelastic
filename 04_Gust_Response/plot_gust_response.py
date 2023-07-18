@@ -5,8 +5,6 @@ import os
 route_dir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 
 def plot_data(list_gust_lengths, list_gust_intensity, list_cfl1, list_polars, case_string_format,results_folder):
-    
-    # TODO: labels (dict with keys to find units and latex parameter), legend
     fig, axs = plt.subplots(4)
     for gust_length in list_gust_lengths:
         for gust_intensity in list_gust_intensity:
@@ -16,16 +14,41 @@ def plot_data(list_gust_lengths, list_gust_intensity, list_cfl1, list_polars, ca
                     data = np.loadtxt(file,
                                       delimiter=",")
                     for iparameter in range(np.shape(data)[1] - 1):
-                        axs[iparameter].plot(data[:,0], data[:,iparameter + 1])
+                        axs[iparameter].plot(data[1:,0], 
+                                             data[1:,iparameter + 1], 
+                                             linestyle = get_linestyle(cfl1, polars), 
+                                             label= get_label(cfl1, polars, iparameter, gust_length))
+    for iax in range(len(axs)):
+        plt.setp(axs[iax].get_xticklabels(), visible=iax == len(axs)-1)
+        axs[iax].set_ylabel(list_ylabels[iax])
+        axs[iax].set_xlim([0.,2.5])
+    plt.xlabel("time, s")
+    plt.tight_layout()
+    axs[0].legend(ncols=len(list_gust_lengths), loc='upper center', bbox_to_anchor=(0.7, 1.2))
     plt.savefig(results_folder + 'dynamic_gust_response.png')
+    plt.show()
                     
+def get_label(cfl1, polars, iparameter, gust_length):
+    if cfl1 or polars or iparameter >0:
+        return None
+    else:
+        return 'H = {} m'.format(gust_length)
+    
 
+def get_linestyle(cfl1, polar):
+    if bool(cfl1) and not bool(polar):
+        return '-'
+    elif bool(polar):
+        return ':'
+    else:
+        return '--'
 def main():         
     results_folder = route_dir + '/results_data/'
     case_string_format =  'superflexop_free_gust_L_{:g}_I_{:g}_p_{:g}_cfl_{:g}'
-    list_gust_lengths = [10] # [5, 10, 20, 40, 80, 100]
+
+    list_gust_lengths = [5, 10, 20, 40, 80, 100]
     list_gust_intensity = [10]
-    list_cfl1 = [0] #[0, 1]
+    list_cfl1 = [1, 0] #[0, 1]
     list_polars = [0] #[0, 1]
     plot_data(list_gust_lengths, list_gust_intensity, list_cfl1, list_polars, case_string_format, results_folder)
 
@@ -33,4 +56,6 @@ def main():
     
 
 if __name__ == '__main__':
+    list_ylabels = ['$z_{tip}/s$, %', '$M_{OOP}$, Nm$^2$', '$M_{T}$, Nm$^2$', '$\Theta$, deg']
+    list_linestyles = ['-', '--', ':']
     main()
