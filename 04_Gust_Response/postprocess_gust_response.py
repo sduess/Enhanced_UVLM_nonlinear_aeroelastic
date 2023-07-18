@@ -28,11 +28,9 @@ def get_time_history(output_folder, case):
 
 def get_header_with_parameter_and_unit(dict_parameters_info):
     header_parameter = 'time'
-    header_unit = 'seconds'
     for ilabel in range(len(dict_parameters_info['para_labels'])):
          header_parameter += ', {}'.format(dict_parameters_info['para_labels'][ilabel])
-        #  header_unit += ', {}'.format(dict_parameters_info['para_units'][ilabel])
-    return header_parameter #+ header_unit
+    return header_parameter
      
 def write_results(data, case,dict_parameters_info, result_folder):  
     if not os.path.exists(result_folder):
@@ -49,9 +47,7 @@ def main():
     SHARPY_output_folder = './output/'
     result_folder = route_dir + '/results_data/'
     dict_parameters_info = {
-                                # 'para_labels': ['$z_{tip}/s$', '$M_{OOP}$', '$M_T$', 'Pitch'],
-                                'para_labels': ['z', 'OOP', 'MT', 'Pitch'],
-                                # 'para_units': ['%', 'Nm2', 'Nm2', 'deg']
+                                'para_labels': ['z/s', 'OOP', 'MT', 'Pitch'],
                            }
     
     for case in list_cases:
