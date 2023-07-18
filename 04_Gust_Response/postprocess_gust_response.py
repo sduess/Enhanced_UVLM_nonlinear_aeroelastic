@@ -1,19 +1,9 @@
 import os
 import h5py as h5
 import numpy as np
+from sharpy.utils.algebra import quat2euler
 
 route_dir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-
-def quat2euler(quat):
-    # TODO: import from SHARPy
-    delta = quat[0]*quat[2] - quat[1]*quat[3]
-
-    yaw = np.arctan(2*(quat[0]*quat[3]+quat[1]*quat[2])/(1-2*(quat[2]**2+quat[3]**2)))
-    pitch = np.arcsin(2*delta)
-    roll = np.arctan(2*(quat[0]*quat[1]+quat[2]*quat[3])/(1-2*(quat[1]**2+quat[2]**2)))
-
-    return np.array([roll, pitch, yaw])
-
 
 def get_time_history(output_folder, case):
     file = os.path.join(output_folder,
