@@ -5,7 +5,7 @@ from generate_flexop_case import generate_flexop_case
 
 u_inf = 45 # cruise flight speed
 rho = 1.1336 # corresponds to an altitude of 800  m
-alpha_rad = 6.796482976011756182e-03 #0.389 deg
+alpha_rad = 6.406771329255241468e-03 #0.389 deg
 
 simulation_settings = {
     'lifting_only': True, # ignore nonlifting bodies
@@ -20,7 +20,7 @@ simulation_settings = {
     'mstar': 80, # number of streamwise wake panels
     'num_chord_panels': 8, # Chordwise lattice discretisation
     'n_elem_multiplier': 2, # multiplier for spanwise node discretisation
-    'n_tstep': 1500,    # number of simulation timesteps
+    'n_tstep': 2000,    # number of simulation timesteps
     'num_cores': 8, # number of cores used for parallelization
     'sigma': 0.3, # stiffness scaling factor, sigma = 1: FLEXOP, sigma = 0.3 SuperFLEXOP
 }
@@ -28,9 +28,8 @@ simulation_settings = {
 
 # Set initial cruise parameter
 initial_trim_values = {'alpha': alpha_rad, 
-                       'delta':-1.784287512500099069e-03,
-                       'thrust': 2.290077074834680371e+00}
-
+                    'delta':-3.325087601649625961e-03,
+                    'thrust': 2.052055145318664842e+00}
 
 # Gust velocity field
 gust_settings ={'use_gust': True,

@@ -90,6 +90,7 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                 'fz_tolerance': 1e-6, 
                                 'fx_tolerance': 1e-6, 
                                 'm_tolerance': 1e-6, 
+                                'max_iter': 200,
                                 'save_info': True}
     settings['AerogridLoader'] = {'unsteady': 'on',
                                 'aligned_grid': 'on',
