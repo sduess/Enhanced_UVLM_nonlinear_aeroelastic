@@ -277,6 +277,11 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                 'minus_m_star': 0,
                                 'u_inf': u_inf,
                                 }
+    settings['WriteVariablesTime'] = {
+           'structure_variables': ['pos'],
+        'structure_nodes': [flexop_model.structure.n_node_main-1],
+        'cleanup_old_solution': 'on',
+    }
 
     return settings
 

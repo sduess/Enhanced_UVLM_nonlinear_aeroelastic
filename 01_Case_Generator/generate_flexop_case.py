@@ -47,6 +47,9 @@ def generate_flexop_case(u_inf,
                            polars = data_polars) 
     flexop_model.structure.set_thrust(thrust)
 
+    flexop_model.generate()
+    flexop_model.structure.calculate_aircraft_mass()
+
     # Other parameters
     CFL = 1
     dt = CFL * flexop_model.aero.chord_main_root / flexop_model.aero.m / u_inf
@@ -88,8 +91,6 @@ def generate_flexop_case(u_inf,
                             mstar=kwargs.get('mstar', 80)
                             )
 
-    flexop_model.generate()
-    flexop_model.structure.calculate_aircraft_mass()
     flexop_model.create_settings(settings)
     return flexop_model
 
