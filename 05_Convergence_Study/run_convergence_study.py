@@ -81,7 +81,168 @@ def run_modal_convergence_study(plot_only=False):
               filename = '{}_convergence_spanwise_nodes_abs_error'.format(get_aircraft_name(default_simulation_settings["sigma"])))
     plot_data(relative_error_frequencies, list_n_spanwise_nodes, ylabel="$\Delta$ f, %", xlabel='number of spanwise nodes',
               filename = '{}convergence_spanwise_nodes_rel_error'.format(get_aircraft_name(default_simulation_settings["sigma"])))
+    
+def run_chordwise_discretisation_convergence_study(plot_only=False):
+    flow = [
+        'BeamLoader', 
+        'AerogridLoader',
+        'StaticCoupled',
+        'AerogridPlot',
+        'WriteVariablesTime',
+        'AeroForcesCalculator'
+        ]
+    
 
+    u_inf = 45 # cruise flight speed
+    rho = 1.1336 # corresponds to an altitude of 800  m
+    default_simulation_settings['use_trim'] = 'StaticTrim' in flow
+    if default_simulation_settings['use_trim']:
+        alpha_rad =  6.796482976011756182e-03 
+        elevator_deflection=-3.325087601649625961e-03
+        thrust=2.052055145318664842e+00
+    else:
+        alpha_rad = np.deg2rad(1)
+        elevator_deflection = 0.
+        thrust = 0.
+    default_simulation_settings['horseshoe'] = True
+    default_simulation_settings['wing_only'] = True
+    default_simulation_settings['gravity'] = True
+    default_simulation_settings['n_elem_multiplier'] = 2
+    convergence_type = 'chordwise_discretisation'
+    flag_first_run = True
+    # horseshoe = True
+    list_num_chord_panels = np.array([4, 8, 16, 24],dtype=int)
+    results_deformation = None
+    results_aeroforces = None
+    results_trim = None
+    for num_chord_panels in list_num_chord_panels:
+        case_name = '{}_convergence_{}_alpha{}_uinf{}_m{}_nelem{}_w{}_nmodes{}'.format(get_aircraft_name(default_simulation_settings["sigma"]),
+                                                                                       convergence_type,
+                                                                                    int(np.rad2deg(alpha_rad*100)),
+                                                                                    int(u_inf),
+                                                                                    num_chord_panels,
+                                                                                    default_simulation_settings['n_elem_multiplier'],
+                                                                                    1,
+                                                                                    0)
+        
+        default_simulation_settings['num_chord_panels'] = num_chord_panels
+        # print(n_elem_multiplier)
+        flexop_model = generate_flexop_case(u_inf,
+                                            rho,
+                                            flow,
+                                            set_initial_trim_values(alpha_rad=alpha_rad,
+                                                                    elevator_deflection=elevator_deflection, 
+                                                                    thrust=thrust),
+                                            case_name,
+                                            **default_simulation_settings)
+        if not plot_only:
+            flexop_model.run()
+
+        # get deformation
+        tip_deformation = np.loadtxt(os.path.join(output_route, 
+                                                               case_name,
+                                                               'WriteVariablesTime',
+                                                               'struct_pos_node{}.dat'.format(flexop_model.structure.n_node_main-1)
+                                                               ))[3]
+        aeroforces = np.transpose(np.loadtxt(os.path.join(output_route, 
+                                                               case_name,
+                                                               'forces',
+                                                               'forces_aeroforces.txt'                                                               
+                                                               ),
+                                                               delimiter=','))[3]
+        aeroforces /= 0.5 * rho  *u_inf**2 * 2.54
+        if default_simulation_settings['use_trim']:
+            trim_conditions = np.loadtxt(os.path.join(output_route, 
+                                                    case_name,
+                                                    'statictrim',
+                                                    'trim_values.txt'
+                                                    ))
+            results_trim = store_data(flag_first_run, trim_conditions, results_trim)
+
+        results_deformation = store_data(flag_first_run, tip_deformation, results_deformation)
+        results_aeroforces = store_data(flag_first_run, aeroforces, results_aeroforces)
+        flag_first_run = False
+
+    error_aeroforces, relative_error_aeroforces = compute_error(results_aeroforces, index_reference_column=-1)
+
+    plot_data(results_aeroforces, list_num_chord_panels, ylabel="$F, N", xlabel='number of chordwise panels')
+    plot_data(error_aeroforces, list_num_chord_panels, ylabel="$\Delta$ F, N", xlabel='number of chordwise panels')
+    plot_data(relative_error_aeroforces, list_num_chord_panels, ylabel="$\Delta$ F, %", xlabel='number of chordwise panels', filename='rel_error_Fz_chordwise_convergence')
+    if default_simulation_settings['use_trim']:
+        for i in range(3):
+            plt.plot(list_num_chord_panels, results_trim[i, :])
+            plt.show()
+
+def run_wake_length_convergence_study(plot_only=False):
+    flow = [
+        'BeamLoader', 
+        'AerogridLoader',
+        'StaticCoupled',
+        'WriteVariablesTime',
+        'AeroForcesCalculator'
+        ]
+    u_inf = 45 # cruise flight speed
+    rho = 1.1336 # corresponds to an altitude of 800  m
+    alpha_rad = 6.796482976011756182e-03
+
+    num_chord_panels = 16
+    default_simulation_settings['num_chord_panels'] = num_chord_panels
+    convergence_type = 'wake_discretisation'
+    flag_first_run = True
+    results_deformation = None
+    results_aeroforces = None
+    list_wake_length_factor = [1, 5, 10, 15, 20]
+    list_wake_panel = np.array(list_wake_length_factor) 
+    list_wake_panel[1:] *= num_chord_panels
+    
+    for wake_length_factor in list_wake_length_factor:
+        if wake_length_factor == 1:            
+            default_simulation_settings['mstar'] = 1
+            default_simulation_settings['horseshoe'] = True
+        else:
+            default_simulation_settings['mstar'] = wake_length_factor * num_chord_panels
+        default_simulation_settings['horseshoe'] = False
+        case_name = '{}_convergence_{}_alpha{}_uinf{}_m{}_nelem{}_w{}_nmodes{}'.format(get_aircraft_name(default_simulation_settings["sigma"]),
+                                                                                    convergence_type,
+                                                                                    int(np.rad2deg(alpha_rad*100)),
+                                                                                    int(u_inf),
+                                                                                    num_chord_panels,
+                                                                                    default_simulation_settings['n_elem_multiplier'],
+                                                                                    wake_length_factor,
+                                                                                    0)
+       
+        'mstar'
+        flexop_model = generate_flexop_case(u_inf,
+                                            rho,
+                                            flow,
+                                            set_initial_trim_values(alpha_rad=alpha_rad),
+                                            case_name,
+                                            **default_simulation_settings)
+        if not plot_only:
+            flexop_model.run()
+        
+        # get deformation
+        tip_deformation = np.loadtxt(os.path.join(output_route, 
+                                                               case_name,
+                                                               'WriteVariablesTime',
+                                                               'struct_pos_node{}.dat'.format(flexop_model.structure.n_node_main-1)
+                                                               ))[3]
+        aeroforces = np.transpose(np.loadtxt(os.path.join(output_route, 
+                                                               case_name,
+                                                               'forces',
+                                                               'forces_aeroforces.txt'                                                               
+                                                               ),
+                                                               delimiter=','))[3]
+
+        aeroforces /= 0.5 * rho  *u_inf**2 * 2.54
+        results_deformation = store_data(flag_first_run, tip_deformation, results_deformation)
+        results_aeroforces = store_data(flag_first_run, aeroforces, results_aeroforces)
+        flag_first_run = False
+
+    error_aeroforces, relative_error_aeroforces = compute_error(results_aeroforces) #, index_reference_column=0)
+
+    plot_data(relative_error_aeroforces, list_wake_panel, ylabel="$\Delta$ F, %", xlabel='number of wake panels', filename='wake_length_convergence_rel_force')
+       
 def get_results(output_route, list_case_names, frequencies=False):
     num_cases = len(list_case_names)
     list_return_results = []
@@ -190,5 +351,7 @@ if __name__ == "__main__":
     'num_cores': 8, # number of cores used for parallelization
     'sigma': 0.3, # stiffness scaling factor, sigma = 1: FLEXOP, sigma = 0.3 SuperFLEXOP
     }
+
     run_modal_convergence_study(plot_only=False)
-            
+    run_chordwise_discretisation_convergence_study(plot_only=False)
+    run_wake_length_convergence_study(plot_only=False)
