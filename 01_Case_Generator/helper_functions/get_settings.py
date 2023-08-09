@@ -48,7 +48,8 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                                                             0.]))}
 
 
-    settings['AeroForcesCalculator'] = {'coefficients': False}
+    settings['AeroForcesCalculator'] = {'write_text_file': True,
+                                        'coefficients': False}
 
     settings['NonLinearStatic'] = {'print_info': 'off',
                                 'max_iterations': 150,
@@ -199,17 +200,26 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                     'n_time_steps': n_tstep,
                                     'dt': dt,
                                     'include_unsteady_force_contribution': unsteady_force_distribution, 
-                                    'postprocessors': ['BeamLoads', 'SaveData'],
-                                    'postprocessors_settings': {
-                                                                'BeamLoads': {'csv_output': 'off'},
-                                                                'SaveData': settings['SaveData'],
-                                                                },
+                                    'postprocessors': kwargs.get('postprocessors_dynamic',['BeamLoads', 'SaveData']), 
+                                    'postprocessors_settings': dict(),
                                 }
+    settings['WriteVariablesTime'] = {
+           'structure_variables': ['pos'],
+        'structure_nodes': [flexop_model.structure.n_node_main-1],
+        'cleanup_old_solution': 'on',
+    }
+    for postprocessor in settings['DynamicCoupled']['postprocessors']:
+        if postprocessor in settings.keys():
+            settings_postprocessor= settings[postprocessor]
+        else:
+            settings_postprocessor = {} # default TODO add warning
+        settings['DynamicCoupled']['postprocessors_settings'][postprocessor] = settings_postprocessor
+
+
 
     if kwargs.get('closed-loop', False):
-        # TODO: add error if network settings not set
         settings['DynamicCoupled']['network_settings'] = kwargs.get('netowrk_settings', {})
-
+    
     settings['Modal'] = {'print_info': True,
                         'use_undamped_modes': True,
                         'NumLambda': num_modes,
@@ -277,11 +287,7 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                 'minus_m_star': 0,
                                 'u_inf': u_inf,
                                 }
-    settings['WriteVariablesTime'] = {
-           'structure_variables': ['pos'],
-        'structure_nodes': [flexop_model.structure.n_node_main-1],
-        'cleanup_old_solution': 'on',
-    }
+
 
     return settings
 

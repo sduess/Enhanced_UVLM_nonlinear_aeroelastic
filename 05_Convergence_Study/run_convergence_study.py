@@ -126,7 +126,6 @@ def run_chordwise_discretisation_convergence_study(plot_only=False):
                                                                                     0)
         
         default_simulation_settings['num_chord_panels'] = num_chord_panels
-        # print(n_elem_multiplier)
         flexop_model = generate_flexop_case(u_inf,
                                             rho,
                                             flow,
@@ -242,7 +241,126 @@ def run_wake_length_convergence_study(plot_only=False):
     error_aeroforces, relative_error_aeroforces = compute_error(results_aeroforces) #, index_reference_column=0)
 
     plot_data(relative_error_aeroforces, list_wake_panel, ylabel="$\Delta$ F, %", xlabel='number of wake panels', filename='wake_length_convergence_rel_force')
+
        
+def get_time_history(output_folder, case):
+    import h5py as h5
+    file = os.path.join(output_folder,
+                         case, 
+                        'savedata', 
+                        case + '.data.h5')   
+    with h5.File(file, "r") as f:
+            ts_max = len(f['data']['structure']['timestep_info'].keys())-2
+            dt = float(str(np.array(f['data']['settings']['DynamicCoupled']['dt'])))
+            matrix_data = np.zeros((ts_max, 2)) # parameters: time, tip displacement
+            matrix_data[:,0] = np.array(list(range(ts_max))) * dt
+            node_tip = np.argmax(np.array(f['data']['structure']['timestep_info']['00000']['pos'])[:,1])
+            half_wingspan = 7.07/2
+            for its in range(1,ts_max):
+                ts_str = f'{its:05d}'
+                matrix_data[its, 1] = np.array(f['data']['structure']['timestep_info'][ts_str]['pos'])[node_tip, 2]/half_wingspan*100 
+    return matrix_data
+
+def run_convergence_dynamic_gust_response_study(plot_only=False):
+    # TODO: Save Parameters with WriteVariablesTime- insteady of SaveData
+    flow = [
+        'BeamLoader', 
+        'AerogridLoader',
+        'StaticTrim',
+        'DynamicCoupled',
+        ]
+    u_inf = 45 # cruise flight speed
+    rho = 1.1336 # corresponds to an altitude of 800  m
+    alpha_rad = 6.796482976011756182e-03
+    default_simulation_settings['n_elem_multiplier'] = 2
+
+    convergence_type = 'dynamic_chordwise_discretisation'
+    flag_first_run = True
+    results_trim= None
+    list_chordwise_panels = [4, 8, 16] #, 24]    
+    default_simulation_settings["postprocessors_dynamic"] = ['WriteVariablesTime']
+    default_simulation_settings['use_trim'] = 'StaticTrim' in flow
+    if default_simulation_settings['use_trim']:
+        alpha_rad =  6.796482976011756182e-03 
+    else:
+        alpha_rad = np.deg2rad(1)
+    default_simulation_settings['horseshoe'] = False
+    default_simulation_settings['wing_only'] = False
+    dict_results_deformation = dict()
+    # Gust velocity field
+    gust_settings ={'use_gust': True,
+                    'gust_shape': '1-cos',
+                    'gust_length': 10.,
+                    'gust_intensity': 0.1,
+                    'gust_offset': 10}  
+    wake_length_factor = 10
+    simulation_time = 0.25
+    list_result_max_peak = []
+    list_result_time_peak = []
+    for num_chord_panels in list_chordwise_panels:
+        if default_simulation_settings["sigma"] == 0.3:
+            alpha_rad = np.deg2rad(0.38)
+        else:
+            alpha_rad = np.deg2rad(1.)
+        dt = 0.471 / num_chord_panels / u_inf
+        default_simulation_settings['n_tstep'] = int(simulation_time / dt)
+        default_simulation_settings['mstar'] = wake_length_factor * num_chord_panels
+        default_simulation_settings['num_chord_panels'] = num_chord_panels
+        case_name = '{}_convergence_{}_alpha{}_uinf{}_m{}_nelem{}_w{}_nmodes{}_d1'.format(get_aircraft_name(default_simulation_settings["sigma"]),
+                                                                                    convergence_type,
+                                                                                    int(np.rad2deg(alpha_rad*100)),
+                                                                                    int(u_inf),
+                                                                                    num_chord_panels,
+                                                                                    default_simulation_settings['n_elem_multiplier'],
+                                                                                    wake_length_factor,
+                                                                                    0)
+       
+        'mstar'
+        flexop_model = generate_flexop_case(u_inf,
+                                            rho,
+                                            flow,
+                                            set_initial_trim_values(alpha_rad=alpha_rad,
+                                                                    elevator_deflection=-3.325087601649625961e-03, 
+                                                                    thrust=2.052055145318664842e+00),
+                                            case_name,
+                                            gust_settings=gust_settings,
+                                            **default_simulation_settings)
+        if not plot_only:
+            flexop_model.run()
+        
+        if default_simulation_settings['use_trim']:
+            trim_conditions = np.loadtxt(os.path.join(output_route, 
+                                                    case_name,
+                                                    'statictrim',
+                                                    'trim_values.txt'
+                                                    ))
+            results_trim = store_data(flag_first_run, trim_conditions, results_trim)
+        # get deformation
+        try:  
+            tip_deformation = np.loadtxt(os.path.join(output_route, 
+                                                                case_name,
+                                                                'WriteVariablesTime',
+                                                                'struct_pos_node{}.dat'.format(flexop_model.structure.n_node_main-1)
+                                                                ))[:,3]
+                                                                
+        except:
+            tip_deformation = get_time_history(output_route, case_name)
+            tip_deformation = tip_deformation[:,1]
+        time_signal = np.array(list(range((np.shape(tip_deformation)[0])))) * dt
+
+        plt.plot(time_signal, tip_deformation)
+        dict_results_deformation[case_name] = dict()
+        dict_results_deformation[case_name]['time_history'] = np.column_stack((time_signal,tip_deformation))
+        dict_results_deformation[case_name]['peak_deflection'] = np.max(tip_deformation)
+        dict_results_deformation[case_name]['timestep_peak'] = time_signal[np.argmax(tip_deformation)]
+        list_result_max_peak.append(dict_results_deformation[case_name]['peak_deflection'])
+        list_result_time_peak.append(dict_results_deformation[case_name]['timestep_peak'])
+        flag_first_run = False
+    
+    plt.xlabel('time, s')
+    plt.ylabel('tip deflection, %')
+    plt.show()
+
 def get_results(output_route, list_case_names, frequencies=False):
     num_cases = len(list_case_names)
     list_return_results = []
