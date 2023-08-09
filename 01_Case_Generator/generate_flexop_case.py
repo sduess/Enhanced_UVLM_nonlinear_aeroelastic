@@ -16,8 +16,6 @@ def generate_flexop_case(u_inf,
                         case_name,
                         **kwargs):
     
-
-
     # Set Aircraft trim
     alpha =  initial_trim_values['alpha'] 
     cs_deflection = initial_trim_values['delta']
@@ -64,7 +62,7 @@ def generate_flexop_case(u_inf,
     tolerance = 1e-6 
     fsi_tolerance = 1e-4 
     newmark_damp = 0.5e-4
-                    
+     
     # Get settings dict
     settings = get_settings(flexop_model,
                             flow,
@@ -88,7 +86,9 @@ def generate_flexop_case(u_inf,
                             dict_wake_shape = kwargs.get('dict_wake_shape', None),
                             use_polars=use_polars,
                             cs_deflection_initial=cs_deflection,
-                            mstar=kwargs.get('mstar', 80)
+                            mstar=kwargs.get('mstar', 80),
+                            num_modes=kwargs.get('num_modes',20),
+                            postprocessors_dynamic=kwargs.get('postprocessors_dynamic', ['BeamLoads', 'SaveData'])
                             )
 
     flexop_model.create_settings(settings)
