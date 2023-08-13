@@ -287,12 +287,26 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                 'minus_m_star': 0,
                                 'u_inf': u_inf,
                                 }
+    settings['AeroForcesCalculator'] = {
+        'write_text_file': 'on',
+        'coefficients': 'off',
+        'S_ref': flexop_model.reference_area,
+        'q_ref': 0.5 * rho * u_inf ** 2}
 
+    settings['WriteVariablesTime'] = {'structure_variables': ['pos', 'psi'],
+                                      'structure_nodes': list(range(flexop_model.structure.n_node_main + 1)),
+                                      'cleanup_old_solution': 'on',
+                                      'delimiter': ','}
 
+    settings['SaveParametricCase'] = {'parameters': {'alpha': np.rad2deg(alpha),
+                                                     'u_inf': u_inf},
+                                      'save_case': 'off'}
+    
     return settings
 
 
 def update_settings_for_polar_corrections(settings):
+    print("update polar settings!")
     aoa_cl_deg = [-3.28415340783741, 0]
     for solver in ['StaticCoupled', 'DynamicCoupled']:
         settings[solver]['correct_forces_method'] = 'PolarCorrection'
