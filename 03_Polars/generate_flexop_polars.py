@@ -12,11 +12,11 @@ def run_polars(list_alpha_deg):
 
     simulation_settings = {
         'lifting_only': True, # ignore nonlifting bodies
-        'wing_only': True, # Wing only or full configuration (wing+tail)
+        'wing_only': False, # Wing only or full configuration (wing+tail)
         'dynamic': False, # unsteady simulation
         'wake_discretisation': False, # cfl not zero and use variable wake discretisation scheme
         'gravity': True,
-        'horseshoe':  True, # Check why not working
+        'horseshoe':  False, # Check why not working
         'use_polars': False, # Apply polar corrections
         'free_flight': False, # False: clamped
         'use_trim': False, # Trim aircraft
@@ -40,7 +40,7 @@ def run_polars(list_alpha_deg):
             # 'SaveData'
             ] 
     
-    for use_polar in [True, False]: #True]:
+    for use_polar in [False, True]:
         simulation_settings['use_polars'] = use_polar
         for alpha_deg in list_alpha_deg:
             if alpha_deg >= 20:
@@ -56,9 +56,8 @@ def run_polars(list_alpha_deg):
                                                    alpha_deg, 
                                                    simulation_settings['use_polars'],
                                                    simulation_settings['lifting_only'])
-            output_folder = './output/' + 'superflexop_uinf_{}_polars'.format(u_inf) + '/'
+            output_folder = './output/' + 'flexop_uinf_{}_polars_liftingonly{}'.format(u_inf, int(simulation_settings["lifting_only"])) + '/'
             # Generate model and start simulation
-
             flexop_model = generate_flexop_case(u_inf,
                                                 rho,
                                                 flow,
@@ -71,5 +70,5 @@ def run_polars(list_alpha_deg):
             flexop_model.run()
 
 if __name__ == '__main__':
-    list_alpha_deg = np.arange(20,30, 2)
+    list_alpha_deg = np.arange(-5,31, 1)
     run_polars(list_alpha_deg)
