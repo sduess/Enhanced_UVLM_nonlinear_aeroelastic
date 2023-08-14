@@ -76,7 +76,6 @@ def postprocess_polars(list_alpha_deg):
                 print(SHARPY_output_folder + case_name)
                 alpha, Cl, Cd, My = process_case(SHARPY_output_folder + case_name)
                 matrix_data = store_data(alpha, Cl, Cd, My, matrix_data)
-            matrix_data = np.sort(matrix_data, 0)
             matrix_data = apply_coefficients(matrix_data, 0.5 * 1.1336 * u_inf ** 2, S, c_ref)
             data_name = "superflexop_uinf{}_p{}_f{}".format(int(u_inf),int(use_polars), int(not lifting_only))
             write_results(matrix_data, data_name, result_folder)
@@ -84,5 +83,5 @@ def postprocess_polars(list_alpha_deg):
 
 if __name__ == '__main__': 
     import polars_utils   
-    list_alpha_deg = np.arange(0,30, 2)
+    list_alpha_deg = np.arange(0,31, 1)
     postprocess_polars(list_alpha_deg)
