@@ -1,13 +1,9 @@
 import os
 import flexop as aircraft
 import numpy as np
-import sharpy.utils.algebra as algebra
 from helper_functions.get_settings import get_settings
 
 cases_route = '../../cases/'
-output_route = './output/'
-
-
 
 def generate_flexop_case(u_inf,
                         rho,
@@ -31,7 +27,7 @@ def generate_flexop_case(u_inf,
                             1: flexop_directory + '/src/airfoil_polars_alpha_30_/xfoil_seq_re1300000_naca0012.txt',
                         }
         data_polars = generate_polar_arrays(airfoil_polars)
-
+    output_route = kwargs.get('output_folder', './output/')
     # setup FLEXOP model
     flexop_model = aircraft.FLEXOP(case_name, cases_route, output_route)
     flexop_model.clean()
@@ -88,7 +84,8 @@ def generate_flexop_case(u_inf,
                             cs_deflection_initial=cs_deflection,
                             mstar=kwargs.get('mstar', 80),
                             num_modes=kwargs.get('num_modes',20),
-                            postprocessors_dynamic=kwargs.get('postprocessors_dynamic', ['BeamLoads', 'SaveData'])
+                            postprocessors_dynamic=kwargs.get('postprocessors_dynamic', ['BeamLoads', 'SaveData']),
+                            n_load_steps=kwargs.get('n_load_steps', 5)
                             )
 
     flexop_model.create_settings(settings)

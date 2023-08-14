@@ -315,7 +315,6 @@ def run_convergence_dynamic_gust_response_study(plot_only=False):
                                                                                     wake_length_factor,
                                                                                     0)
        
-        'mstar'
         flexop_model = generate_flexop_case(u_inf,
                                             rho,
                                             flow,
@@ -336,16 +335,12 @@ def run_convergence_dynamic_gust_response_study(plot_only=False):
                                                     ))
             results_trim = store_data(flag_first_run, trim_conditions, results_trim)
         # get deformation
-        try:  
-            tip_deformation = np.loadtxt(os.path.join(output_route, 
-                                                                case_name,
-                                                                'WriteVariablesTime',
-                                                                'struct_pos_node{}.dat'.format(flexop_model.structure.n_node_main-1)
-                                                                ))[:,3]
-                                                                
-        except:
-            tip_deformation = get_time_history(output_route, case_name)
-            tip_deformation = tip_deformation[:,1]
+        tip_deformation = np.loadtxt(os.path.join(output_route, 
+                                                            case_name,
+                                                            'WriteVariablesTime',
+                                                            'struct_pos_node{}.dat'.format(flexop_model.structure.n_node_main-1)
+                                                            ))[:,3]
+
         time_signal = np.array(list(range((np.shape(tip_deformation)[0])))) * dt
 
         plt.plot(time_signal, tip_deformation)
@@ -357,10 +352,6 @@ def run_convergence_dynamic_gust_response_study(plot_only=False):
         list_result_time_peak.append(dict_results_deformation[case_name]['timestep_peak'])
         flag_first_run = False
     
-    plt.xlabel('time, s')
-    plt.ylabel('tip deflection, %')
-    plt.show()
-
 def get_results(output_route, list_case_names, frequencies=False):
     num_cases = len(list_case_names)
     list_return_results = []
@@ -470,6 +461,7 @@ if __name__ == "__main__":
     'sigma': 0.3, # stiffness scaling factor, sigma = 1: FLEXOP, sigma = 0.3 SuperFLEXOP
     }
 
-    run_modal_convergence_study(plot_only=False)
-    run_chordwise_discretisation_convergence_study(plot_only=False)
-    run_wake_length_convergence_study(plot_only=False)
+    # run_modal_convergence_study(plot_only=False)
+    # run_chordwise_discretisation_convergence_study(plot_only=False)
+    # run_wake_length_convergence_study(plot_only=False)
+    run_convergence_dynamic_gust_response_study(plot_only=True)
