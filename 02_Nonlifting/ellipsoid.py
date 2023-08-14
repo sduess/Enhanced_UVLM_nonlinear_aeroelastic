@@ -2,6 +2,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt 
 import sharpy
+import nonlifting_utils
 
 from sharpy.cases.templates.fuselage_wing_configuration.fuselage_wing_configuration import Fuselage_Wing_Configuration
 from sharpy.cases.templates.fuselage_wing_configuration.fwc_get_settings import define_simulation_settings
@@ -26,13 +27,9 @@ def test_ellipsoid():
     fuselage_shape = 'ellipsoid'
     fuselage_discretisation = 'uniform'
     # define case name and folders
+    route_dir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
+    case_route, output_route, results_folder = nonlifting_utils.define_folder(route_dir)
 
-    route_test_dir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-    case_route = route_test_dir + '/cases/'
-    output_route = route_test_dir + '/output/'
-    results_folder = route_test_dir + '/result_data/'
-    if not os.path.exists(results_folder):
-        os.mkdir(results_folder)
     case_name = 'ellipsoid'
     enforce_uniform_fuselage_discretisation = True
 
@@ -73,7 +70,7 @@ def test_ellipsoid():
                              'ellipsoid_cp.png'))
 
     # clean up
-    tearDown(route_test_dir)
+    nonlifting_utils.tearDown(route_dir)
 
 def load_pressure_distribution(output_folder, n_collocation_points):
     """
@@ -110,14 +107,7 @@ def get_results(output_route, case_name, ellipsoidal_body):
     cp_distribution_analytical = get_analytical_pressure_distribution(ellipsoidal_body.fuselage.max_radius, x_collocation_points)
     return cp_distribution_SHARPy, cp_distribution_analytical, x_collocation_points
 
-def tearDown(route_test_dir):
-    """
-        Removes all created files within this test.
-    """
-    import shutil
-    folders = ['cases', 'output']
-    for folder in folders:
-        shutil.rmtree(route_test_dir + '/' + folder)
+
 
 
 if __name__ == '__main__':
