@@ -84,7 +84,8 @@ def generate_flexop_case(u_inf,
                             cs_deflection_initial=cs_deflection,
                             mstar=kwargs.get('mstar', 80),
                             num_modes=kwargs.get('num_modes',20),
-                            postprocessors_dynamic=kwargs.get('postprocessors_dynamic', ['BeamLoads', 'SaveData'])
+                            postprocessors_dynamic=kwargs.get('postprocessors_dynamic', ['BeamLoads', 'SaveData']),
+                            n_load_steps=kwargs.get('n_load_steps', 5)
                             )
 
     flexop_model.create_settings(settings)

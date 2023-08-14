@@ -43,6 +43,10 @@ def run_polars(list_alpha_deg):
     for use_polar in [True, False]: #True]:
         simulation_settings['use_polars'] = use_polar
         for alpha_deg in list_alpha_deg:
+            if alpha_deg >= 20:
+                n_load_steps = 10
+            else:
+                n_load_steps = 5
             # Set initial cruise parameter
             initial_trim_values = {'alpha': np.deg2rad(alpha_deg),
                                    'delta': 0,
@@ -61,7 +65,8 @@ def run_polars(list_alpha_deg):
                                                 initial_trim_values,
                                                 case_name,
                                                 **simulation_settings,
-                                                output_folder=output_folder)
+                                                output_folder=output_folder,
+                                                n_load_steps=n_load_steps)
             
             flexop_model.run()
 
