@@ -277,7 +277,7 @@ def run_convergence_dynamic_gust_response_study(plot_only=False):
     convergence_type = 'dynamic_chordwise_discretisation'
     flag_first_run = True
     results_trim= None
-    list_chordwise_panels = [4, 8, 16] #, 24]    
+    list_chordwise_panels = [4, 8, 16, 24]    
     default_simulation_settings["postprocessors_dynamic"] = ['WriteVariablesTime']
     default_simulation_settings['use_trim'] = 'StaticTrim' in flow
     if default_simulation_settings['use_trim']:
@@ -286,7 +286,6 @@ def run_convergence_dynamic_gust_response_study(plot_only=False):
         alpha_rad = np.deg2rad(1)
     default_simulation_settings['horseshoe'] = False
     default_simulation_settings['wing_only'] = False
-    dict_results_deformation = dict()
     # Gust velocity field
     gust_settings ={'use_gust': True,
                     'gust_shape': '1-cos',
@@ -295,9 +294,8 @@ def run_convergence_dynamic_gust_response_study(plot_only=False):
                     'gust_offset': 0}  
     wake_length_factor = 10
     simulation_time = 0.25
-    list_result_max_peak = []
-    list_result_time_peak = []
-    for num_chord_panels in list_chordwise_panels:
+    result_peak_deformation = np.zeros((len(list_chordwise_panels,)))
+    for counter, num_chord_panels in enumerate(list_chordwise_panels):
         if default_simulation_settings["sigma"] == 0.3:
             alpha_rad = np.deg2rad(0.38)
         else:
@@ -341,16 +339,15 @@ def run_convergence_dynamic_gust_response_study(plot_only=False):
                                                             'struct_pos_node{}.dat'.format(flexop_model.structure.n_node_main-1)
                                                             ))[:,3]
 
-        time_signal = np.array(list(range((np.shape(tip_deformation)[0])))) * dt
-
-        plt.plot(time_signal, tip_deformation)
-        dict_results_deformation[case_name] = dict()
-        dict_results_deformation[case_name]['time_history'] = np.column_stack((time_signal,tip_deformation))
-        dict_results_deformation[case_name]['peak_deflection'] = np.max(tip_deformation)
-        dict_results_deformation[case_name]['timestep_peak'] = time_signal[np.argmax(tip_deformation)]
-        list_result_max_peak.append(dict_results_deformation[case_name]['peak_deflection'])
-        list_result_time_peak.append(dict_results_deformation[case_name]['timestep_peak'])
-        flag_first_run = False
+        result_peak_deformation[counter] = np.max(tip_deformation)
+    relative_error_peak_deformation = (result_peak_deformation-result_peak_deformation[-1])/result_peak_deformation[-1]*100
+    
+    plt.plot(list_chordwise_panels, relative_error_peak_deformation)
+    plt.xlabel('Number of chordwise wing panels')
+    plt.ylabel('$\Delta z_{tip_{max}}$')
+    plt.grid()
+    plt.savefig('{}/dynamic_convergence_study.png'.format(result_folder))
+    plt.show()
     
 def get_results(output_route, list_case_names, frequencies=False):
     num_cases = len(list_case_names)
