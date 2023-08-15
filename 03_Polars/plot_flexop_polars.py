@@ -111,6 +111,8 @@ def plot_polars():
     ax[1].set_ylabel('$C_L$')
     ax[2].set_xlabel('alpha, deg')
     ax[2].set_ylabel('$C_M$')
+    fig.tight_layout()
+    plt.savefig('{}/superflexop_steady_polar.png'.format(result_folder))
     plt.show()
 
 
