@@ -292,7 +292,7 @@ def run_convergence_dynamic_gust_response_study(plot_only=False):
                     'gust_shape': '1-cos',
                     'gust_length': 10.,
                     'gust_intensity': 0.1,
-                    'gust_offset': 10}  
+                    'gust_offset': 0}  
     wake_length_factor = 10
     simulation_time = 0.25
     list_result_max_peak = []
