@@ -23,8 +23,8 @@ def run_polars(list_alpha_deg):
         'mstar': 80, # number of streamwise wake panels
         'num_chord_panels': 8, # Chordwise lattice discretisation
         'n_elem_multiplier': 2, # multiplier for spanwise node discretisation
-        'num_radial_panels': 12, # Radial Fuselage Discretisation
-        'n_elem_multiplier_fuselage': 2, # multiplier for spanwise node discretisation
+        'num_radial_panels': 36, # Radial Fuselage Discretisation
+        'n_elem_multiplier_fuselage': 4, # multiplier for spanwise node discretisation
         'num_cores': 8, # number of cores used for parallelization
         'sigma': 0.3, # stiffness scaling factor, sigma = 1: FLEXOP, sigma = 0.3 SuperFLEXOP
     }
@@ -32,14 +32,18 @@ def run_polars(list_alpha_deg):
     # Set Flow
     flow = ['BeamLoader', 
             'AerogridLoader',
+            'NonliftingbodygridLoader',
+            'AerogridPlot',
             'StaticCoupled',
             'AeroForcesCalculator',
-            'AeroForcesCalculator',
+            'AerogridPlot',
             'WriteVariablesTime',
             'SaveParametricCase'
             # 'SaveData'
             ] 
     
+    if simulation_settings["lifting_only"]:
+        flow.remove('NonliftingbodygridLoader')
     for use_polar in [False, True]:
         simulation_settings['use_polars'] = use_polar
         for alpha_deg in list_alpha_deg:
@@ -56,7 +60,7 @@ def run_polars(list_alpha_deg):
                                                    alpha_deg, 
                                                    simulation_settings['use_polars'],
                                                    simulation_settings['lifting_only'])
-            output_folder = './output/' + 'flexop_uinf_{}_polars_liftingonly{}'.format(u_inf, int(simulation_settings["lifting_only"])) + '/'
+            output_folder = './output/' + 'superflexop_uinf_{}_polars_liftingonly{}'.format(u_inf, int(simulation_settings["lifting_only"])) + '/'
             # Generate model and start simulation
             flexop_model = generate_flexop_case(u_inf,
                                                 rho,
@@ -65,7 +69,8 @@ def run_polars(list_alpha_deg):
                                                 case_name,
                                                 **simulation_settings,
                                                 output_folder=output_folder,
-                                                n_load_steps=n_load_steps)
+                                                n_load_steps=n_load_steps,
+                                                nonlifting_interactions=bool(not simulation_settings["lifting_only"]))
             
             flexop_model.run()
 

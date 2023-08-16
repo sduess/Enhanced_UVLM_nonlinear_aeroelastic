@@ -68,7 +68,7 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                                     'u_inf_direction': [1., 0, 0]},
                             'rho': rho,
                             'cfl1': bool(not variable_wake),
-                            #   'nonlifting_body_interaction': nonlifting_body_interaction
+                            'nonlifting_body_interactions': kwargs.get("nonlifting_body_interactions", False)
                             }
 
     settings['StaticCoupled'] = {'print_info': 'off',
@@ -79,7 +79,8 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                 'max_iter': 100,
                                 'n_load_steps': n_load_steps,
                                 'tolerance': fsi_tolerance,
-                                'relaxation_factor': structural_relaxation_factor}
+                                'relaxation_factor': structural_relaxation_factor,                                
+                                'nonlifting_body_interactions': kwargs.get("nonlifting_body_interactions", False)}
 
     settings['StaticTrim'] = {'solver': 'StaticCoupled',
                                 'solver_settings': settings['StaticCoupled'],
@@ -117,7 +118,7 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                                                             )
         
 
-    settings['NonliftingbodygridLoader'] = {'freestream_dir': ['1', '0', '0']}
+    settings['NonliftingbodygridLoader'] = {}
 
     settings['NonLinearDynamicCoupledStep'] = {'print_info': 'off',
                                                 'max_iterations': 950,
@@ -152,7 +153,7 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                             'rho': rho,
                             'n_time_steps': n_tstep,
                             'dt': dt,
-                            # 'nonlifting_body_interaction': not lifting_only,
+                            'nonlifting_body_interactions': kwargs.get("nonlifting_body_interactions", False)
                             }
     if gust:
         gust_settings = kwargs.get('gust_settings', {'gust_shape': '1-cos',
@@ -286,9 +287,11 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                 'include_applied_forces': 'on',
                                 'minus_m_star': 0,
                                 'u_inf': u_inf,
+                                'plot_nonlifting_surfaces': kwargs.get("nonlifting_body_interactions", False)
                                 }
     settings['AeroForcesCalculator'] = {
         'write_text_file': 'on',
+        'nonlifting_body': kwargs.get("nonlifting_body_interactions", False),
         'coefficients': 'off',
         'S_ref': flexop_model.reference_area,
         'q_ref': 0.5 * rho * u_inf ** 2}
@@ -321,7 +324,6 @@ def update_settings_for_polar_corrections(settings):
 
 def get_skipped_attributes(list_to_be_saved_attr):
     route_dir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-    # TODO: Better Solution than route dir! 
     with open(route_dir + '/list_aero_and_structural_ts_attributes.json', 'r') as f:
         list_of_all_attributes = json.load(f)
     
