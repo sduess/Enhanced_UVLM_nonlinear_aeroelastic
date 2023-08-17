@@ -19,7 +19,6 @@ def get_pmor_data(path_to_case):
 
     return case_name, path_to_sharpy_pmor, pmor
 
-
 def process_case(path_to_case):
     _, _, pmor = get_pmor_data(path_to_case)
     alpha = pmor['parameters']['alpha']
@@ -30,8 +29,6 @@ def process_case(path_to_case):
 
     return alpha, inertial_forces[2], inertial_forces[0], inertial_moments[1]
 
-
-
 def apply_coefficients(results, q, S, c_ref):
     qS = q * S
     results[:, 1:] /= qS  # lift drag and moment
@@ -41,15 +38,10 @@ def apply_coefficients(results, q, S, c_ref):
 
 def store_data(alpha, Cl, Cd, My, matrix_data):
     data = np.array([alpha, Cl, Cd, My], dtype=float)
-    print("data: ", data)
     if matrix_data is None:
         return data
     else:
-        # np.vstack(())
-        print("matrix data = ", np.vstack((matrix_data, data)))
         return np.vstack((matrix_data, data))
-
-
      
 def write_results(data, case, result_folder):  
     if not os.path.exists(result_folder):
@@ -63,12 +55,11 @@ def write_results(data, case, result_folder):
     
 def postprocess_polars(list_alpha_deg):  
     u_inf = 45 
-
     route_dir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-    SHARPY_output_folder  = './output/' + 'superflexop_uinf_{}_polars/'.format(u_inf)
     result_folder = route_dir + '/results_data/'
     
-    for lifting_only in [True]:
+    for lifting_only in [False, True]:
+        SHARPY_output_folder  = './output/' + 'superflexop_uinf_{}_polars_liftingonly{}'.format(u_inf, int(lifting_only)) + '/'
         for use_polars in [False, True]:
             matrix_data =None
             for alpha_deg in list_alpha_deg:              
@@ -83,5 +74,5 @@ def postprocess_polars(list_alpha_deg):
 
 if __name__ == '__main__': 
     import polars_utils   
-    list_alpha_deg = np.arange(0,31, 1)
+    list_alpha_deg = np.arange(-5,31, 1)
     postprocess_polars(list_alpha_deg)

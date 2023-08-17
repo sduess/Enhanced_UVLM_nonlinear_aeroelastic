@@ -86,9 +86,9 @@ def plot_polars():
     list_results = []
     list_labels = []
 
-    fig, ax = plt.subplots(1, 3)
+    fig, ax = plt.subplots(1, 3, figsize=(16,9))
     for use_polars in [False, True]:
-        for lifting_only in [True]:
+        for lifting_only in [True, False]:
             data_name = "superflexop_uinf{}_p{}_f{}".format(int(u_inf),int(use_polars), int(not lifting_only))
             results = np.loadtxt(os.path.join(result_folder, data_name + '.txt'),
                                            delimiter=',')
@@ -104,6 +104,8 @@ def plot_polars():
             ax[2].plot(results[:,0],
                         results[:,3],
                         label = label)
+    for iax in ax:
+        iax.grid()
     ax[2].legend()
     ax[0].set_xlabel('alpha, deg')
     ax[0].set_ylabel('$C_L$')

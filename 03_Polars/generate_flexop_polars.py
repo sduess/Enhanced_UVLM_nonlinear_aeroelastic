@@ -24,7 +24,7 @@ def run_polars(list_alpha_deg):
         'num_chord_panels': 8, # Chordwise lattice discretisation
         'n_elem_multiplier': 2, # multiplier for spanwise node discretisation
         'num_radial_panels': 36, # Radial Fuselage Discretisation
-        'n_elem_multiplier_fuselage': 4, # multiplier for spanwise node discretisation
+        'n_elem_multiplier_fuselage': 2, # multiplier for spanwise node discretisation
         'num_cores': 8, # number of cores used for parallelization
         'sigma': 0.3, # stiffness scaling factor, sigma = 1: FLEXOP, sigma = 0.3 SuperFLEXOP
     }
