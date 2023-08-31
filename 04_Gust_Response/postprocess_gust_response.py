@@ -47,7 +47,7 @@ def main():
     case_string_format =  'superflexop_free_gust_L_{:g}_I_{:g}_p_{:g}_cfl_{:g}'
     if u_inf == 20:
         case_string_format += 'u_inf20'
-    list_gust_lengths = [[5, 10, 20, 40, 80, 100]
+    list_gust_lengths = [5, 10, 20, 40, 80, 100]
     list_gust_intensity = [10]
     list_cfl1 = [1, 0]
     list_polars = [0]
