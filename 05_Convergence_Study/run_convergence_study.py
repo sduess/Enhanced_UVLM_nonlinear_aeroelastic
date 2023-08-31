@@ -262,7 +262,6 @@ def get_time_history(output_folder, case):
     return matrix_data
 
 def run_convergence_dynamic_gust_response_study(plot_only=False):
-    # TODO: Save Parameters with WriteVariablesTime- insteady of SaveData
     flow = [
         'BeamLoader', 
         'AerogridLoader',
@@ -359,7 +358,7 @@ def get_results(output_route, list_case_names, frequencies=False):
             if i_case == num_cases - 1:
                 list_return_results.append(results_frequencies)
 
-    return list_return_results # use * to unpack list?
+    return list_return_results
                 
 def compute_error(results_frequencies, index_reference_column = -1):
     # assume finest grid is at the last position
