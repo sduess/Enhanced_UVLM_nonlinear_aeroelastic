@@ -142,6 +142,14 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                             'dt': dt,
                                             }
 
+    settings['BeamPlot'] = {}
+    
+    settings['AerogridPlot'] = {'include_rbm': 'off',
+                                'include_applied_forces': 'on',
+                                'minus_m_star': 5,
+                                'u_inf': u_inf,
+                                'plot_nonlifting_surfaces': kwargs.get("nonlifting_body_interactions", False)
+                                }
     settings['BeamLoads'] = {'csv_output': True}
     settings['StepUvlm'] = {'num_cores': num_cores,
                             'convection_scheme': 2,
@@ -180,7 +188,6 @@ def get_settings(flexop_model, flow, dt, **kwargs):
         structural_solver = 'NonLinearDynamicPrescribedStep'
     settings['SaveData'] = {'save_aero': True,
                             'save_struct': True,
-                            # 'skip_attr': get_skipped_attributes('list_to_be_saved_attr'),
                             }
     if 'LinearAssembler' in flow:
         settings['SaveData']['save_linear'] = True
@@ -203,6 +210,7 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                     'include_unsteady_force_contribution': unsteady_force_distribution, 
                                     'postprocessors': kwargs.get('postprocessors_dynamic',['BeamLoads', 'SaveData']), 
                                     'postprocessors_settings': dict(),
+                                    'nonlifting_body_interactions': kwargs.get("nonlifting_body_interactions", False),
                                 }
     settings['WriteVariablesTime'] = {
            'structure_variables': ['pos'],
@@ -281,14 +289,6 @@ def get_settings(flexop_model, flow, dt, **kwargs):
 
     settings['LiftDistribution'] = {'rho': rho}
 
-    settings['BeamPlot'] = {}
-
-    settings['AerogridPlot'] = {'include_rbm': 'off',
-                                'include_applied_forces': 'on',
-                                'minus_m_star': 0,
-                                'u_inf': u_inf,
-                                'plot_nonlifting_surfaces': kwargs.get("nonlifting_body_interactions", False)
-                                }
     settings['AeroForcesCalculator'] = {
         'write_text_file': 'on',
         'nonlifting_body': kwargs.get("nonlifting_body_interactions", False),
