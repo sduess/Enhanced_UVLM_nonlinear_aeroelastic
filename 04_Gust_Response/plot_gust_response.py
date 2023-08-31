@@ -34,7 +34,11 @@ def plot_data(list_gust_lengths, list_gust_intensity, list_cfl1, list_polars, ca
                         
     lgd = axs[0].legend(ncols=2, loc='upper right', handles = handles[-2:],
                         bbox_to_anchor=(1.0, 1.))
-    plt.savefig(results_folder + 'dynamic_gust_response.png', bbox_extra_artists=(lgd,), bbox_inches='tight')
+    str_name_extension = ''
+    if 1 in list_polars:
+        str_name_extension += '_polars'
+
+    plt.savefig(results_folder + 'dynamic_gust_response{}.png'.format(str_name_extension), bbox_extra_artists=(lgd,), bbox_inches='tight')
     plt.show()
 
 def get_legend(list_gust_length, flag_polar_study=False):
