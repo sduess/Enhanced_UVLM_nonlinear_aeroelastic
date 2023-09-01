@@ -15,10 +15,10 @@ def get_time_history(output_folder, case):
             dt = float(str(np.array(f['data']['settings']['DynamicCoupled']['dt'])))
             matrix_data = np.zeros((ts_max, 5)) # parameters: time, tip displacement, wing root OOP and torsional bending, pitch
             matrix_data[:,0] = np.array(list(range(ts_max))) * dt
-            node_tip = np.argmax(np.array(f['data']['structure']['timestep_info']['00000']['pos'])[:,1])
+            node_tip = np.argmax(np.array(f['data']['structure']['timestep_info']['00002']['pos'])[:,1])
             half_wingspan = 7.07/2
             node_root = 0
-            for its in range(1,ts_max):
+            for its in range(2,ts_max):
                 ts_str = f'{its:05d}'
                 matrix_data[its, 1] = np.array(f['data']['structure']['timestep_info'][ts_str]['pos'])[node_tip, 2]/half_wingspan*100 # normalised tip z position in percent
                 matrix_data[its, 2] = np.array(f['data']['structure']['timestep_info'][ts_str]['postproc_cell']['loads'])[node_root,4] # OOP
