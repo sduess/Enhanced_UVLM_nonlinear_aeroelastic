@@ -4,15 +4,17 @@ This repository contains the scripts and code used for the SHARPy simulations ob
 
 [1] Duessler, S., & Palacios, R.. Enhanced Unsteady Vortex Lattice Aerodynamics for Nonlinear Flexible Aircraft Dynamic Simulation. AIAA Journal, 2023. *to appear*
 
-Several modelling extensions and numerical improvements to the unsteady vortex-lattice method are discussed for the simulation of very flexible aircraft dynamics. In particular, fuselage aerodynamics are included by means of linear source panels, polar corrections are incorporated into the aerodynamics under potentially large deformations, and a new wake discretization scheme is derived to accelerate the computations. The theory behind each approach is detailed and successfully verified on representative test cases. The resulting modelling environment is then exemplified in a study of the flight dynamics of a flexible aircraft demonstrator model. Results indicate that for large wing deformations, a noticeable effect of fuselage aerodynamic interference appears on the wing aeroelastic behaviour. The polar corrections improve the drag estimations and allow capturing lift decrements due to stall onset at high induced angles of attack, which then affects the gust loads. The wake discretisation scheme enables a reduction of the computational for dynamic simulations on a full aircraft model by about $\mathbf{20\,\%}$ while keeping the arising error negligible small.
-
 This paper discusses several modelling extensions and numerical improvements to the unsteady vortex-lattice method used for the simulation of very flexible aircraft dynamics.  These enhancements include:
 * Fuselage aerodynamics are included by means of linear source panels.
 * Sectional polar corrections are incorporated into the aerodynamics under potentially large deformations.
 * A new wake discretization scheme is derived to accelerate the computations.
-
+* 
 These enhancements have been implemented to the nonlinear aeroelastic simulation environment [SHARPy](http://github.com/imperialcollegelondon/sharpy) which is included in this repository as a submodule, as well as the SHARPy version of the [(Super)Flexop model](http://github.com/sduess/flexop_model) used as a flexible demonstrator model.
 
+![SuperFLEXOP Gust Response](https://github.com/sduess/Enhanced_UVLM_nonlinear_aeroelastic/assets/72152433/300812c3-ade5-4904-b8ca-a0cbe4e2a561)
+<p align="center">
+<strong>Visualization of the SuperFLEXOP's Gust Response simulated with SHARPy</strong>
+</p>
 
 ## Installation
 
