@@ -1,39 +1,17 @@
 import os
-import aircraft
+import flexop as aircraft
 import numpy as np
-import sharpy.utils.algebra as algebra
 from helper_functions.get_settings import get_settings
 
 cases_route = '../../cases/'
-output_route = './output/'
-
-
 
 def generate_flexop_case(u_inf,
                         rho,
+                        flow,
                         initial_trim_values,
                         case_name,
                         **kwargs):
     
-    # Set Flow
-    flow = ['BeamLoader', 
-            'AerogridLoader',
-            'AerogridPlot',
-            'BeamPlot',
-            'StaticCoupled',
-            'StaticTrim',
-            'BeamPlot',
-            'AerogridPlot',
-            'AeroForcesCalculator',
-            'DynamicCoupled',
-           ]      
-
-    if not kwargs.get('dynamic', False):
-        flow.remove('DynaimcCoupled')
-    
-    if not kwargs.get('use_trim', False):
-        flow.remove('StaticTrim')
-
     # Set Aircraft trim
     alpha =  initial_trim_values['alpha'] 
     cs_deflection = initial_trim_values['delta']
@@ -49,19 +27,25 @@ def generate_flexop_case(u_inf,
                             1: flexop_directory + '/src/airfoil_polars_alpha_30_/xfoil_seq_re1300000_naca0012.txt',
                         }
         data_polars = generate_polar_arrays(airfoil_polars)
-
+    output_route = kwargs.get('output_folder', './output/')
     # setup FLEXOP model
     flexop_model = aircraft.FLEXOP(case_name, cases_route, output_route)
     flexop_model.clean()
     flexop_model.init_structure(sigma=kwargs.get('sigma', 0.3), 
                                 n_elem_multiplier=kwargs.get('n_elem_multiplier', 2),
-                                n_elem_multiplier_fuselage = 1, 
+                                n_elem_multiplier_fuselage = kwargs.get('n_elem_multiplier_fuselage',1), 
                                 lifting_only=kwargs.get('lifting_only', True),
                                 wing_only = kwargs.get('wing_only', False))
     flexop_model.init_aero(m=kwargs.get('num_chord_panels', 8),
                            cs_deflection = cs_deflection,
                            polars = data_polars) 
+    nonlifting_body_interactions = kwargs.get("nonlifting_interactions", False)
+    if nonlifting_body_interactions:
+        flexop_model.init_fuselage(m=kwargs.get('num_radial_panels', 24))
     flexop_model.structure.set_thrust(thrust)
+
+    flexop_model.generate()
+    flexop_model.structure.calculate_aircraft_mass()
 
     # Other parameters
     CFL = 1
@@ -77,7 +61,7 @@ def generate_flexop_case(u_inf,
     tolerance = 1e-6 
     fsi_tolerance = 1e-4 
     newmark_damp = 0.5e-4
-                    
+     
     # Get settings dict
     settings = get_settings(flexop_model,
                             flow,
@@ -101,11 +85,13 @@ def generate_flexop_case(u_inf,
                             dict_wake_shape = kwargs.get('dict_wake_shape', None),
                             use_polars=use_polars,
                             cs_deflection_initial=cs_deflection,
-                            mstar=kwargs.get('mstar', 80)
+                            mstar=kwargs.get('mstar', 80),
+                            num_modes=kwargs.get('num_modes',20),
+                            postprocessors_dynamic=kwargs.get('postprocessors_dynamic', ['BeamLoads', 'SaveData']),
+                            n_load_steps=kwargs.get('n_load_steps', 5),
+                            nonlifting_body_interactions=nonlifting_body_interactions
                             )
 
-    flexop_model.generate()
-    flexop_model.structure.calculate_aircraft_mass()
     flexop_model.create_settings(settings)
     return flexop_model
 

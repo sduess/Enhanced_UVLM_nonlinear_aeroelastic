@@ -48,7 +48,8 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                                                             0.]))}
 
 
-    settings['AeroForcesCalculator'] = {'coefficients': False}
+    settings['AeroForcesCalculator'] = {'write_text_file': True,
+                                        'coefficients': False}
 
     settings['NonLinearStatic'] = {'print_info': 'off',
                                 'max_iterations': 150,
@@ -67,7 +68,7 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                                     'u_inf_direction': [1., 0, 0]},
                             'rho': rho,
                             'cfl1': bool(not variable_wake),
-                            #   'nonlifting_body_interaction': nonlifting_body_interaction
+                            'nonlifting_body_interactions': kwargs.get("nonlifting_body_interactions", False)
                             }
 
     settings['StaticCoupled'] = {'print_info': 'off',
@@ -78,7 +79,8 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                 'max_iter': 100,
                                 'n_load_steps': n_load_steps,
                                 'tolerance': fsi_tolerance,
-                                'relaxation_factor': structural_relaxation_factor}
+                                'relaxation_factor': structural_relaxation_factor,                                
+                                'nonlifting_body_interactions': kwargs.get("nonlifting_body_interactions", False)}
 
     settings['StaticTrim'] = {'solver': 'StaticCoupled',
                                 'solver_settings': settings['StaticCoupled'],
@@ -90,6 +92,7 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                 'fz_tolerance': 1e-6, 
                                 'fx_tolerance': 1e-6, 
                                 'm_tolerance': 1e-6, 
+                                'max_iter': 200,
                                 'save_info': True}
     settings['AerogridLoader'] = {'unsteady': 'on',
                                 'aligned_grid': 'on',
@@ -115,7 +118,7 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                                                             )
         
 
-    settings['NonliftingbodygridLoader'] = {'freestream_dir': ['1', '0', '0']}
+    settings['NonliftingbodygridLoader'] = {}
 
     settings['NonLinearDynamicCoupledStep'] = {'print_info': 'off',
                                                 'max_iterations': 950,
@@ -139,6 +142,14 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                             'dt': dt,
                                             }
 
+    settings['BeamPlot'] = {}
+    
+    settings['AerogridPlot'] = {'include_rbm': 'off',
+                                'include_applied_forces': 'on',
+                                'minus_m_star': 5,
+                                'u_inf': u_inf,
+                                'plot_nonlifting_surfaces': kwargs.get("nonlifting_body_interactions", False)
+                                }
     settings['BeamLoads'] = {'csv_output': True}
     settings['StepUvlm'] = {'num_cores': num_cores,
                             'convection_scheme': 2,
@@ -150,7 +161,7 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                             'rho': rho,
                             'n_time_steps': n_tstep,
                             'dt': dt,
-                            # 'nonlifting_body_interaction': not lifting_only,
+                            'nonlifting_body_interactions': kwargs.get("nonlifting_body_interactions", False)
                             }
     if gust:
         gust_settings = kwargs.get('gust_settings', {'gust_shape': '1-cos',
@@ -177,7 +188,6 @@ def get_settings(flexop_model, flow, dt, **kwargs):
         structural_solver = 'NonLinearDynamicPrescribedStep'
     settings['SaveData'] = {'save_aero': True,
                             'save_struct': True,
-                            # 'skip_attr': get_skipped_attributes('list_to_be_saved_attr'),
                             }
     if 'LinearAssembler' in flow:
         settings['SaveData']['save_linear'] = True
@@ -198,17 +208,27 @@ def get_settings(flexop_model, flow, dt, **kwargs):
                                     'n_time_steps': n_tstep,
                                     'dt': dt,
                                     'include_unsteady_force_contribution': unsteady_force_distribution, 
-                                    'postprocessors': ['BeamLoads', 'SaveData'],
-                                    'postprocessors_settings': {
-                                                                'BeamLoads': {'csv_output': 'off'},
-                                                                'SaveData': settings['SaveData'],
-                                                                },
+                                    'postprocessors': kwargs.get('postprocessors_dynamic',['BeamLoads', 'SaveData']), 
+                                    'postprocessors_settings': dict(),
+                                    'nonlifting_body_interactions': kwargs.get("nonlifting_body_interactions", False),
                                 }
+    settings['WriteVariablesTime'] = {
+           'structure_variables': ['pos'],
+        'structure_nodes': [flexop_model.structure.n_node_main-1],
+        'cleanup_old_solution': 'on',
+    }
+    for postprocessor in settings['DynamicCoupled']['postprocessors']:
+        if postprocessor in settings.keys():
+            settings_postprocessor= settings[postprocessor]
+        else:
+            settings_postprocessor = {} # default TODO add warning
+        settings['DynamicCoupled']['postprocessors_settings'][postprocessor] = settings_postprocessor
+
+
 
     if kwargs.get('closed-loop', False):
-        # TODO: add error if network settings not set
         settings['DynamicCoupled']['network_settings'] = kwargs.get('netowrk_settings', {})
-
+    
     settings['Modal'] = {'print_info': True,
                         'use_undamped_modes': True,
                         'NumLambda': num_modes,
@@ -269,18 +289,27 @@ def get_settings(flexop_model, flow, dt, **kwargs):
 
     settings['LiftDistribution'] = {'rho': rho}
 
-    settings['BeamPlot'] = {}
+    settings['AeroForcesCalculator'] = {
+        'write_text_file': 'on',
+        'nonlifting_body': kwargs.get("nonlifting_body_interactions", False),
+        'coefficients': 'off',
+        'S_ref': flexop_model.reference_area,
+        'q_ref': 0.5 * rho * u_inf ** 2}
 
-    settings['AerogridPlot'] = {'include_rbm': 'off',
-                                'include_applied_forces': 'on',
-                                'minus_m_star': 0,
-                                'u_inf': u_inf,
-                                }
+    settings['WriteVariablesTime'] = {'structure_variables': ['pos', 'psi'],
+                                      'structure_nodes': list(range(flexop_model.structure.n_node_main + 1)),
+                                      'cleanup_old_solution': 'on',
+                                      'delimiter': ','}
 
+    settings['SaveParametricCase'] = {'parameters': {'alpha': np.rad2deg(alpha),
+                                                     'u_inf': u_inf},
+                                      'save_case': 'off'}
+    
     return settings
 
 
 def update_settings_for_polar_corrections(settings):
+    print("update polar settings!")
     aoa_cl_deg = [-3.28415340783741, 0]
     for solver in ['StaticCoupled', 'DynamicCoupled']:
         settings[solver]['correct_forces_method'] = 'PolarCorrection'
@@ -295,7 +324,6 @@ def update_settings_for_polar_corrections(settings):
 
 def get_skipped_attributes(list_to_be_saved_attr):
     route_dir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-    # TODO: Better Solution than route dir! 
     with open(route_dir + '/list_aero_and_structural_ts_attributes.json', 'r') as f:
         list_of_all_attributes = json.load(f)
     
