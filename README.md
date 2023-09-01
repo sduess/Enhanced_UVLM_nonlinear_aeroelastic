@@ -8,7 +8,7 @@ This paper discusses several modelling extensions and numerical improvements to 
 * Fuselage aerodynamics are included by means of linear source panels.
 * Sectional polar corrections are incorporated into the aerodynamics under potentially large deformations.
 * A new wake discretization scheme is derived to accelerate the computations.
-* 
+
 These enhancements have been implemented to the nonlinear aeroelastic simulation environment [SHARPy](http://github.com/imperialcollegelondon/sharpy) which is included in this repository as a submodule, as well as the SHARPy version of the [(Super)Flexop model](http://github.com/sduess/flexop_model) used as a flexible demonstrator model.
 
 ![SuperFLEXOP Gust Response](https://github.com/sduess/Enhanced_UVLM_nonlinear_aeroelastic/assets/72152433/300812c3-ade5-4904-b8ca-a0cbe4e2a561)
