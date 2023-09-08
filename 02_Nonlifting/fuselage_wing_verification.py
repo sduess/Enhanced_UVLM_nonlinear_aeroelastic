@@ -5,15 +5,20 @@ import nonlifting_utils
 
 def verifiy_fuselage_wing_configuration(model):
     """
-        Test spanwise lift distribution on a fuselage-wing configuration.
-        
-        The lift distribution on low wing configuration is computed considering
-        fuselage effects. The final results are compared to experimental 
-        measurements published in. 
+    Test spanwise lift distribution on a fuselage-wing configuration.
+
+    This function computes the spanwise lift distribution for a fuselage-wing configuration, 
+    accounting for fuselage effects, and compares the results to experimental measurements.
+
+    Parameters:
+        model (str): The name of the aircraft model.
+
     """
+    # Get the directory paths
     route_dir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
     case_route, output_route, results_folder = nonlifting_utils.define_folder(route_dir)
 
+    # Define fuselage length
     fuselage_length = 10
     dict_geometry_parameters = nonlifting_utils.get_geometry_parameters(model,
                                                        route_dir,
@@ -37,7 +42,8 @@ def verifiy_fuselage_wing_configuration(model):
     # Simulation settings
     horseshoe = False
     phantom_test = False
-    # Simlation Solver Flow
+
+    # Simulation Solver Flow
     flow = ['BeamLoader',
             'AerogridLoader',
             'NonliftingbodygridLoader',
@@ -65,9 +71,9 @@ def verifiy_fuselage_wing_configuration(model):
                                                     lifting_only,
                                                     horseshoe=horseshoe,
                                                     phantom_test=phantom_test)
-        # run simulation
+        # Run simulation
         wing_fuselage_model.run()
-        # get results
+        # Get results
         lift_distribution = nonlifting_utils.load_lift_distribution(
             output_route + case_name,
             wing_fuselage_model.aero.aero_node,
@@ -76,12 +82,12 @@ def verifiy_fuselage_wing_configuration(model):
             )
         
         label = nonlifting_utils.get_label(lifting_only)
-        plt.scatter(lift_distribution[:,0], lift_distribution[:,1], label = label)
+        plt.scatter(lift_distribution[:,0], lift_distribution[:,1], label=label)
 
-    # check results
+    # Check results against experimental data
     lift_distribution_test = np.loadtxt(route_dir + "/test_data/experimental_lift_distribution_{}.csv".format(model), skiprows=1, delimiter=',')  # TODO: Exchange with experimental results
 
-    plt.scatter(lift_distribution_test[:,0], lift_distribution_test[:,1], label = 'Experiments')
+    plt.scatter(lift_distribution_test[:,0], lift_distribution_test[:,1], label='Experiments')
     plt.legend()
     plt.xlabel('y/s')
     plt.ylabel('$c_l$')
@@ -91,5 +97,5 @@ def verifiy_fuselage_wing_configuration(model):
     nonlifting_utils.tearDown(route_dir)
 
 if __name__ == '__main__':
-    model = 'low_wing'
+    model = 'low_wing' 
     verifiy_fuselage_wing_configuration(model)

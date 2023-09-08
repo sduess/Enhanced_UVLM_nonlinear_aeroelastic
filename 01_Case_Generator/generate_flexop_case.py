@@ -11,7 +11,46 @@ def generate_flexop_case(u_inf,
                         initial_trim_values,
                         case_name,
                         **kwargs):
-    
+    """
+    Generate and configure a FLEXOP aircraft model for a simulation case.
+
+    Parameters:
+    - u_inf (float): Cruise flight speed in m/s.
+    - rho (float): Air density in kg/m^3.
+    - flow (list): List of flow modules to be used in the simulation.
+    - initial_trim_values (dict): Initial trim values including 'alpha', 'delta', and 'thrust'.
+    - case_name (str): Unique name for the simulation case.
+    - **kwargs (optional): Additional simulation settings.
+
+    Returns:
+    - flexop_model (FLEXOP): Configured FLEXOP aircraft model.
+
+    Additional Simulation Settings (in **kwargs):
+    - use_polars (bool): Whether to apply polar corrections (default: False).
+    - output_folder (str): Output folder for simulation results (default: './output/').
+    - sigma (float): Stiffness scaling factor (default: 0.3).
+    - n_elem_multiplier (int): Multiplier for spanwise node discretization (default: 2).
+    - n_elem_multiplier_fuselage (int): Multiplier for fuselage spanwise node discretization (default: 3).
+    - lifting_only (bool): Consider only lifting bodies (default: True).
+    - wing_only (bool): Consider the wing only (default: False).
+    - num_chord_panels (int): Chordwise lattice discretization (default: 8).
+    - num_radial_panels (int): Radial fuselage discretization (default: 36).
+    - num_cores (int): Number of cores used for parallelization (default: 8).
+    - wake_length (float): Length of the wake (default: 10.0).
+    - free_flight (bool): Perform free flight simulation (default: True).
+    - n_tstep (int): Number of simulation time steps (default: 1).
+    - variable_wake (bool): Use variable wake discretization (default: False).
+    - dict_wake_shape (dict): Dictionary specifying wake shape parameters (default: None).
+    - gust_settings (dict): Dictionary specifying gust settings (default: {'use_gust': False}).
+    - mstar (int): Number of streamwise wake panels (default: 80).
+    - num_modes (int): Number of modes (default: 20).
+    - postprocessors_dynamic (list): List of postprocessors for dynamic analysis (default: ['BeamLoads', 'SaveData']).
+    - n_load_steps (int): Number of load steps (default: 5).
+    - nonlifting_body_interactions (bool): Include interactions with nonlifting bodies (default: False).
+
+    Note: Detailed descriptions of these parameters can be found in the function body.
+    """
+
     # Set Aircraft trim
     alpha =  initial_trim_values['alpha'] 
     cs_deflection = initial_trim_values['delta']
@@ -33,7 +72,7 @@ def generate_flexop_case(u_inf,
     flexop_model.clean()
     flexop_model.init_structure(sigma=kwargs.get('sigma', 0.3), 
                                 n_elem_multiplier=kwargs.get('n_elem_multiplier', 2),
-                                n_elem_multiplier_fuselage = kwargs.get('n_elem_multiplier_fuselage',1), 
+                                n_elem_multiplier_fuselage = kwargs.get('n_elem_multiplier_fuselage',3), 
                                 lifting_only=kwargs.get('lifting_only', True),
                                 wing_only = kwargs.get('wing_only', False))
     flexop_model.init_aero(m=kwargs.get('num_chord_panels', 8),
@@ -56,7 +95,7 @@ def generate_flexop_case(u_inf,
     if gust_settings['use_gust']:
         gust_settings['gust_offset'] *= dt * u_inf # TODO: define offset independed of dt and velocity!
 
-    # numerics
+    # Numerics
     structural_relaxation_factor = 0.6
     tolerance = 1e-6 
     fsi_tolerance = 1e-4 
