@@ -22,11 +22,14 @@ def define_folder(route_dir):
 
     if not os.path.exists(case_route):
         os.makedirs(case_route)
-    return case_route, output_route, results_folder, results_folder
+    return case_route, output_route, results_folder
 
 
-def get_timestep(model, u_inf):
-    return model.aero.chord_wing / model.aero.num_chordwise_panels / u_inf
+def get_timestep(model, u_inf, CFL=1):
+    """
+    Computes and return the timestep to fullfil a specified CFL number.
+    """
+    return CFL * model.aero.chord_wing / model.aero.num_chordwise_panels / u_inf
 
 def load_deformation_distribution(output_folder, n_node_wing, n_tsteps=0):
     """
@@ -40,12 +43,15 @@ def load_deformation_distribution(output_folder, n_node_wing, n_tsteps=0):
                                             )[1:]
     return result_deformation
 
-def load_lift_distribution(output_folder, n_node_wing, n_tsteps=0):
+def load_lift_distribution(output_folder, aero_node, n_node_wing, n_tsteps=0, dimensionalize=False):
     """
         Loads the resulting pressure coefficients saved in txt-files.
     """
     lift_distribution = np.loadtxt(output_folder + '/liftdistribution/liftdistribution_ts{}.txt'.format(str(n_tsteps)), delimiter=',')
-    return lift_distribution[:n_node_wing,[1,-1]]
+    lift_distribution = lift_distribution[:n_node_wing,[1,-1]]
+    if dimensionalize:
+        lift_distribution[:,0] /= np.max(lift_distribution[:, 0])
+    return lift_distribution[aero_node[:n_node_wing],:]
     
 def get_geometry_parameters(model_name,route_dir, fuselage_length=10):
     """
@@ -61,7 +67,7 @@ def get_geometry_parameters(model_name,route_dir, fuselage_length=10):
         'fuselage_length': fuselage_length,         
         'max_radius': fuselage_length/parameter_models['length_radius_ratio'],
         'fuselage_shape': parameter_models['fuselage_shape'],
-        'alpha_zero_deg': parameter_models['alpha_zero_deg']
+        # 'alpha_zero_deg': parameter_models['alpha_zero_deg']
     }
     geometry_parameters['chord']=geometry_parameters['max_radius']/parameter_models['radius_chord_ratio']
     geometry_parameters['half_wingspan'] = geometry_parameters['max_radius']/parameter_models['radius_half_wingspan_ratio']
@@ -81,26 +87,30 @@ def generate_model(case_name,
         input files are generated.
     """
     from sharpy.cases.templates.fuselage_wing_configuration.fuselage_wing_configuration import Fuselage_Wing_Configuration
+    
     aircraft_model = Fuselage_Wing_Configuration(case_name, case_route, output_route)
     aircraft_model.init_aeroelastic(lifting_only=lifting_only,
-                                **dict_discretisation,
-                                **dict_geometry_parameters,
-                                sigma=sigma)
+                                    sigma=sigma,
+                                    **dict_discretisation,
+                                    **dict_geometry_parameters)
     aircraft_model.generate()
     return aircraft_model
 
 
 def generate_simulation_settings(flow, 
-                                    aircraft_model, 
-                                    alpha_deg, 
-                                    u_inf, 
-                                    lifting_only,
-                                    n_tsteps=0,
-                                    horseshoe=True,
-                                    nonlifting_only=False,
-                                    phantom_test=False,
-                                    dynamic_structural_solver='NonLinearDynamicPrescribedStep'
-                                    ):
+                                aircraft_model, 
+                                alpha_deg, 
+                                u_inf, 
+                                lifting_only,
+                                n_tsteps=0,
+                                horseshoe=True,
+                                nonlifting_only=False,
+                                phantom_test=False,
+                                writeWingPosVariables=False,
+                                writeCpVariables=False,
+                                ignore_first_x_nodes=0,
+                                dynamic_structural_solver='NonLinearDynamicPrescribedStep'
+                                ):
     """
         Simulation settings are defined and written to the ".sharpy" input file.
     """
@@ -115,11 +125,17 @@ def generate_simulation_settings(flow,
                                             phantom_test=phantom_test, 
                                             nonlifting_only=nonlifting_only, 
                                             horseshoe=horseshoe,
-                                            dynamic_structural_solver=dynamic_structural_solver)
+                                            writeWingPosVariables=writeWingPosVariables,
+                                            writeCpVariables=writeCpVariables,
+                                            dynamic_structural_solver=dynamic_structural_solver,
+                                            ignore_first_x_nodes=ignore_first_x_nodes)
     aircraft_model.create_settings(settings)
 
 
 def get_label(lifting_only):
+    """
+        Returns label (str) for a plot depending 
+    """
     label = 'SHARPy'
     if lifting_only:
         label += ' - wing only'

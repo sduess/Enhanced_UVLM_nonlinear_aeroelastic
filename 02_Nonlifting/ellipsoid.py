@@ -52,7 +52,14 @@ def test_ellipsoid():
             'StaticUvlm',
             'WriteVariablesTime'
             ]
-    settings = define_simulation_settings(flow, ellipsoidal_body, alpha_deg, u_inf, lifting_only=False, nonlifting_only=True, horseshoe=True)
+    settings = define_simulation_settings(flow, 
+                                          ellipsoidal_body, 
+                                          alpha_deg, 
+                                          u_inf, 
+                                          lifting_only=False, 
+                                          nonlifting_only=True, 
+                                          horseshoe=True,
+                                          writeCpVariables=True)
     ellipsoidal_body.create_settings(settings)
 
     # run simulation
