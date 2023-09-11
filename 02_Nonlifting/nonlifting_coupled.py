@@ -1,3 +1,21 @@
+"""
+Aeroelastic Analysis for Fuselage-Wing Configuration
+
+This script performs aeroelastic analysis for a steady fuselage-wing configuration. It computes the wing deformation for
+different stiffness scaling factors and lifting conditions, generating input files for the SHARPy simulation, running 
+simulations, and plotting the results.
+
+Usage:
+- Modify the script parameters to customize the analysis.
+- Run the script to perform the aeroelastic analysis.
+
+Parameters:
+    model (str): The name of the aircraft model.
+    plot_only (bool, optional): If True, only plot the results; otherwise, run the simulation and plot the results.
+
+"""
+
+# Import necessary modules
 import os
 import numpy as np
 import nonlifting_utils
@@ -62,7 +80,7 @@ def run_fuselage_wing_configuration_coupled(model, plot_only=False):
         # TODO: Choose number depending on model discretisation
         ignore_first_x_nodes_in_force_calculation = 5 * int(lifting_only)
         for isigma, sigma in enumerate(list_sigmas):
-            case_name = '{}_coupled_lifting_only{}_sigma{}'.format(model, int(lifting_only), sigma*1000)
+            case_name = '{}_coupled_lifting_only{}_sigma{}'.format(model, int(lifting_only), int(sigma*1000))
             # Generate SHARPy model input files
             wing_fuselage_model = nonlifting_utils.generate_model(case_name, 
                                                 dict_geometry_parameters,
@@ -99,26 +117,27 @@ def run_fuselage_wing_configuration_coupled(model, plot_only=False):
             deformation[:,2] -= deformation[0, 2]
             deformation /= dict_geometry_parameters['half_wingspan']
 
-            # Plot results
-            if lifting_only:
-                linestyle = '-'
-                label = None
-            else:
-                linestyle = '-'
-                label ="$\Lambda$ = {}".format(sigma)
-            plt.plot(deformation[:,1], deformation[:,2], color=list_colors[isigma], linestyle=linestyle, label=label)
 
-
-    plt.legend()
-    plt.grid()
-    plt.xlabel("y/s")
-    plt.ylabel("z/s")
-    plt.savefig(results_folder + '/{}_wing_deformation.png'.format(model))
-    plt.show()
+            write_results(deformation,
+                          case_name,
+                          results_folder)
 
     # Clean up
     nonlifting_utils.tearDown(route_dir)
 
+def write_results(data, file_name, result_folder):  
+    """
+    Write processed simulation results to a text file.
+
+    Parameters:
+    - data (list(numpy.ndarray)): Processed simulation data.
+    - file_name (str): Name of the output file.
+    - result_folder (str): Path to the folder where results will be saved.
+    """
+    np.savetxt(os.path.join(result_folder,file_name), 
+            data,
+            delimiter=", ")
+    
 if __name__ == '__main__':
     list_colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown']
-    run_fuselage_wing_configuration_coupled('mid_wing_1', plot_only=False) #low_wing
+    run_fuselage_wing_configuration_coupled('mid_wing_1', plot_only=True)#low_wing
