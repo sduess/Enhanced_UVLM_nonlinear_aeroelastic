@@ -30,7 +30,8 @@ def run_fuselage_wing_configuration_coupled(model, plot_only=False):
 
     Parameters:
         model (str): The name of the aircraft model.
-        plot_only (bool, optional): If True, only plot the results, otherwise, run the simulation and plot the results.
+        plot_only (bool, optional): If True, only plot the results, without running the simulation
+                                    for which simulation results need to exist already.
 
     """
     # Get the directory paths
