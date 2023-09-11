@@ -1,8 +1,8 @@
 """
 (Super)FLEXOP Gust Response Simulation Script
 
-This script sets up and runs a FlexOP simulation for analyzing the aerodynamic behavior of an aircraft
-under gust conditions.
+This script sets up and runs a FlexOP simulation for analyzing the aeroelastic response of 
+a flexible aircraft to a gust. 
 
 Usage:
 - Modify the simulation_settings, initial_trim_values, and gust_settings to match your specific case.
