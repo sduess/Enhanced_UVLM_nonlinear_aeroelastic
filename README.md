@@ -32,7 +32,8 @@ Alternatively, you can use a SHARPy distribution that is already installed on yo
 * _02_Nonlifting_: Includes the scripts to generate the verification study results for the fuselage-wing effects as well as the fuselage radii effect shown on the SuperFLEXOP.
 * _03_Polars_: Includes all scripts necessary to reproduce the polar results for the SuperFLEXOP.
 * _04_Gust_Response_: Includes all scripts to generate the gust response results for the SuperFLEXOP including wake discretisation and polar effects.
-* _05_Convergence_Study_: Generates the data for the convergence study included in the appendix.
+* _05_FLEXOP Verification_: Includes all scripts to generate the steady aeroelastic results for the FLEXOP and its comparison to the reference data.
+* _06_Convergence_Study_: Generates the data for the convergence study included in the appendix.
 ## Running Simulations
 First, activate SHARPy's conda environment 
 ```bash
