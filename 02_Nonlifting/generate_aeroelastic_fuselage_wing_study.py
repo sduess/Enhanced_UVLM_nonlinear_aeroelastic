@@ -141,4 +141,4 @@ def write_results(data, file_name, result_folder):
     
 if __name__ == '__main__':
     list_colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown']
-    run_fuselage_wing_configuration_coupled('mid_wing_1', plot_only=True)#low_wing
+    run_fuselage_wing_configuration_coupled('mid_wing_1', plot_only=False)#low_wing

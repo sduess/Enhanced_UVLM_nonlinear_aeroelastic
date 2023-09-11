@@ -115,7 +115,5 @@ def get_results(output_route, case_name, ellipsoidal_body):
     return cp_distribution_SHARPy, cp_distribution_analytical, x_collocation_points
 
 
-
-
 if __name__ == '__main__':
     test_ellipsoid()
