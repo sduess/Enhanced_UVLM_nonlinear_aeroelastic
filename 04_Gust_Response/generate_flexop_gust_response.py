@@ -37,7 +37,7 @@ simulation_settings = {
     'n_elem_multiplier': 2,  # Multiplier for spanwise node discretization
     'n_tstep': 2000,  # Number of simulation time steps
     'num_cores': 4,  # Number of CPU cores used for parallelization
-    'sigma': 1,  # Stiffness scaling factor (1 for FLEXOP, 0.3 for SuperFLEXOP)
+    'sigma': 0.3,  # Stiffness scaling factor (1 for FLEXOP, 0.3 for SuperFLEXOP)
     'postprocessors_dynamic': ['BeamLoads', 'SaveData', 'BeamPlot', 'AerogridPlot'],
 }
 
