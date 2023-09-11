@@ -124,7 +124,7 @@ def write_results(data, file_name, result_folder):
     - file_name (str): Name of the output file.
     - result_folder (str): Path to the folder where results will be saved.
     """
-    np.savetxt(file_name, 
+    np.savetxt(os.path.join(result_folder,file_name), 
             data,
             delimiter=", ")
 
@@ -147,7 +147,7 @@ def postprocess_steady_flexop_results():
         for idata, data in enumerate([lift_distribution, displacement]):
             print(idata)
             write_results(data,
-                        os.path.join(os.path.join(result_folder, '{}_{}.txt'.format(list_result[idata], case_name))), 
+                        '{}_{}.txt'.format(list_result[idata], case_name), 
                         result_folder)
 
 if __name__ == '__main__':
