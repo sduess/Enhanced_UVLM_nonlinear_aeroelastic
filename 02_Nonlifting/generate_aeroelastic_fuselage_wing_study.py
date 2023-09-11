@@ -19,7 +19,6 @@ Parameters:
 import os
 import numpy as np
 import nonlifting_utils
-import matplotlib.pyplot as plt
 
 def run_fuselage_wing_configuration_coupled(model, plot_only=False):
     """
@@ -120,7 +119,7 @@ def run_fuselage_wing_configuration_coupled(model, plot_only=False):
 
 
             write_results(deformation,
-                          case_name,
+                          case_name + '.txt',
                           results_folder)
 
     # Clean up
