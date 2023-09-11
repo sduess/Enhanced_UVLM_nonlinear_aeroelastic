@@ -1,3 +1,16 @@
+"""
+Ellipsoid Pressure Distribution Simulation Script
+
+This script performs a pressure distribution simulation over an ellipsoid using SHARPy.
+It computes and compares the pressure distribution results from SHARPy with the analytical
+solution based on potential flow theory.
+
+Usage:
+- Modify the script parameters to customize the simulation.
+- Run the script to perform the pressure distribution analysis and generate plots.
+
+"""
+
 import os
 import numpy as np
 import matplotlib.pyplot as plt 
