@@ -59,7 +59,8 @@ def run_fuselage_wing_configuration_coupled(model, plot_only=False):
     list_sigmas =  np.array([0.25, 0.33, 1.])/10
 
     for lifting_only in [True, False]:
-        ignore_first_x_nodes = 9 * int(lifting_only)
+        # TODO: Choose number depending on model discretisation
+        ignore_first_x_nodes_in_force_calculation = 5 * int(lifting_only)
         for isigma, sigma in enumerate(list_sigmas):
             case_name = '{}_coupled_lifting_only{}_sigma{}'.format(model, int(lifting_only), sigma*1000)
             # Generate SHARPy model input files
@@ -71,7 +72,6 @@ def run_fuselage_wing_configuration_coupled(model, plot_only=False):
                                                 output_route,
                                                 sigma=sigma)
             
-
             # Generate SHARPy setting input
             flow_case = flow.copy()
             if lifting_only:
@@ -84,7 +84,7 @@ def run_fuselage_wing_configuration_coupled(model, plot_only=False):
                                                 horseshoe=horseshoe,
                                                 phantom_test=phantom_test,
                                                 writeWingPosVariables=True,
-                                                ignore_first_x_nodes=ignore_first_x_nodes)
+                                                ignore_first_x_nodes_in_force_calculation=ignore_first_x_nodes_in_force_calculation)
             
             # Run simulation
             if not plot_only:

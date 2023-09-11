@@ -108,7 +108,7 @@ def generate_simulation_settings(flow,
                                 phantom_test=False,
                                 writeWingPosVariables=False,
                                 writeCpVariables=False,
-                                ignore_first_x_nodes=0,
+                                ignore_first_x_nodes_in_force_calculation=0,
                                 dynamic_structural_solver='NonLinearDynamicPrescribedStep'
                                 ):
     """
@@ -128,7 +128,7 @@ def generate_simulation_settings(flow,
                                             writeWingPosVariables=writeWingPosVariables,
                                             writeCpVariables=writeCpVariables,
                                             dynamic_structural_solver=dynamic_structural_solver,
-                                            ignore_first_x_nodes=ignore_first_x_nodes)
+                                            ignore_first_x_nodes_in_force_calculation=ignore_first_x_nodes_in_force_calculation)
     aircraft_model.create_settings(settings)
 
 
