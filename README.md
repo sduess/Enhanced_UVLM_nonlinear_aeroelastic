@@ -2,14 +2,14 @@
 
 This repository contains the scripts and code used for the SHARPy simulations obtained for the results shown in the journal paper
 
-[1] Duessler, S., & Palacios, R.. Enhanced Unsteady Vortex Lattice Aerodynamics for Nonlinear Flexible Aircraft Dynamic Simulation. AIAA Journal, 2023. *to appear*
+[1] Duessler, S., & Palacios, R.. Enhanced Unsteady Vortex Lattice Aerodynamics for Nonlinear Flexible Aircraft Dynamic Simulation. AIAA Journal, 2023. *To appear*
 
 This paper discusses several modelling extensions and numerical improvements to the unsteady vortex-lattice method used for the simulation of very flexible aircraft dynamics.  These enhancements include:
 * Fuselage aerodynamics are included by means of linear source panels.
 * Sectional polar corrections are incorporated into the aerodynamics under potentially large deformations.
 * A new wake discretization scheme is derived to accelerate the computations.
 
-These enhancements have been implemented to the nonlinear aeroelastic simulation environment [SHARPy](http://github.com/imperialcollegelondon/sharpy) which is included in this repository as a submodule, as well as the SHARPy version of the [(Super)Flexop model](http://github.com/sduess/flexop_model) used as a flexible demonstrator model.
+These enhancements have been implemented to the nonlinear aeroelastic simulation environment [SHARPy](http://github.com/imperialcollegelondon/sharpy) which is included in this repository as a submodule, as well as the SHARPy version of the [(Super)Flexop model](http://github.com/sduess/flexop_model) used as a flexible demonstrator model. The scripts in this repo include only the pre and postprocessors for the results in the AIAAJ paper.
 
 ![SuperFLEXOP Gust Response](https://github.com/sduess/Enhanced_UVLM_nonlinear_aeroelastic/assets/72152433/300812c3-ade5-4904-b8ca-a0cbe4e2a561)
 <p align="center">
@@ -24,7 +24,7 @@ cd <path-to-repository>/lib/sharpy
 ```
 and install SHARPy as described in the [documentation](https://ic-sharpy.readthedocs.io/en/latest/content/installation.html). 
 
-Alternatively, you can use a SHARPy distribution that is already installed on your machine. The SHARPy version used must be at least v2.1.
+Alternatively, you can use a SHARPy distribution that is already installed on your machine. The SHARPy version used was v2.1. If you have problems with a newer version of SHARPy, please revert to that one.
 
 ## Structure of this Repository
 
@@ -54,7 +54,7 @@ python <path-to-repository>/04_Gust_Response/plot_flexop_gust_response.py
 ```
 ## Copyleft
 
-We are happy to share our efforts with the community and we welcome contributions to the code base. If you found this dataset useful we would ask you to cite the paper [1] and the linked Zendono archive with doi included in [1] in any publications or reports based on it.
+We are happy to share our efforts with the community and we welcome contributions to the code base. If you found this dataset useful we would kindly ask you to cite the paper [1] and the linked Zendono archive with doi included in [1] in any publications or reports based on it.
 
 ## Contact
 
