@@ -2,7 +2,7 @@
 FLEXOP Steady Simulation Script
 
 This script is used for setting up and running steady-state simulations with FLEXOP. 
-It defines simulation parameters, settings, and the flow sequence to simulate aircraft behavior 
+It defines simulation parameters, settings, and the SHARPy flow sequence to simulate aircraft behavior 
 at different angles of attack. The results are later used to verifiy the implemented model with
 reference results.
 
