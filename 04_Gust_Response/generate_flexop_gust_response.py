@@ -77,7 +77,9 @@ flow = [
     'NonliftingbodygridLoader',
     'AerogridPlot',
     'BeamPlot',
-    'StaticUvlm',
+    'StaticCoupled',
+    'DynamicCoupled'
+
 ]
 
 # Remove certain steps based on simulation settings
