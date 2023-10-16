@@ -26,11 +26,12 @@ simulation_settings = {
     'lifting_only': True,  # Ignore nonlifting bodies
     'wing_only': False,  # Simulate the full configuration (wing+tail)
     'dynamic': True,  # Perform unsteady simulation
-    'wake_discretisation': True,  # Use variable wake discretization scheme
+    'wake_discretisation': False,  # Use variable wake discretization scheme
+    'use_dynamic_thrust_input': True,
     'gravity': True,  # Include gravitational effects
     'horseshoe': False,  # Disable horseshoe wake modeling
     'use_polars': False,  # Apply polar corrections
-    'free_flight': False,  # Simulate unclamped aircraft
+    'free_flight': True,  # Simulate unclamped aircraft
     'use_trim': False,  # Enable aircraft trim
     'mstar': 80,  # Number of streamwise wake panels
     'num_chord_panels': 8,  # Chordwise lattice discretization
@@ -50,7 +51,7 @@ initial_trim_values = {
 
 # Gust settings
 gust_settings = {
-    'use_gust': True,  # Enable gust modeling
+    'use_gust': False,  # Enable gust modeling
     'gust_shape': '1-cos',  # Gust shape function
     'gust_length': 10.0,  # Gust length in seconds
     'gust_intensity': 0.1,  # Gust intensity
@@ -66,20 +67,24 @@ if simulation_settings['wake_discretisation']:
         'dxmax': 5 * 0.471
     }
     simulation_settings['mstar'] = 35
-    print(simulation_settings)
 else:
     dict_wake_shape = None
+
+thrust_input_settings = None
+if simulation_settings['use_dynamic_thrust_input']:
+    thrust_input_settings = {
+        'thrust_input_file': '../..//thrust.csv',
+    } 
 
 # Define the flow sequence
 flow = [
     'BeamLoader',
     'AerogridLoader',
     'NonliftingbodygridLoader',
-    'AerogridPlot',
+    # 'AerogridPlot',
     'BeamPlot',
     'StaticCoupled',
-    'DynamicCoupled'
-
+    'DynamicCoupled',
 ]
 
 # Remove certain steps based on simulation settings
@@ -93,10 +98,12 @@ for gust_length in list_gust_lengths:
     gust_settings['gust_length'] = gust_length
 
     # Generate a case name based on simulation settings
-    case_name = 'flexop_free_gust_L_{}_I_{}_p_{}_cfl_{}_uinf{}'.format(
+    case_name = 'flexop_free_gust_L_{}_I_{}_p_{}_f_{}_t{}_cfl_{}_uinf{}'.format(
         gust_settings['gust_length'],
         int(gust_settings['gust_intensity'] * 100),
         int(simulation_settings['use_polars']),
+        int(not simulation_settings['lifting_only']),
+        int(simulation_settings['use_dynamic_thrust_input']),
         int(not simulation_settings['wake_discretisation']),
         int(u_inf)
     )
@@ -114,6 +121,7 @@ for gust_length in list_gust_lengths:
         case_name,
         gust_settings=gust_settings,
         dict_wake_shape=dict_wake_shape,
+        thrust_input_settings=thrust_input_settings,
         **simulation_settings,
         nonlifting_interactions=bool(not simulation_settings["lifting_only"])
     )
