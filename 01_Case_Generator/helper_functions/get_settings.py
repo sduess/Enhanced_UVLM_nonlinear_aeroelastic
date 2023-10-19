@@ -180,7 +180,9 @@ def get_settings(flexop_model, flow, dt, **kwargs):
     }
 
     # BeamPlot Settings
-    settings['BeamPlot'] = {}
+    settings['BeamPlot'] = {
+        'include_unsteady_applied_forces': kwargs.get('use_dynamic_thrust_input', False),
+    }
 
     # AerogridPlot Settings
     settings['AerogridPlot'] = {

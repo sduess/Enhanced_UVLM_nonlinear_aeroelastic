@@ -129,7 +129,8 @@ def generate_flexop_case(u_inf,
                             num_modes=kwargs.get('num_modes',20),
                             postprocessors_dynamic=kwargs.get('postprocessors_dynamic', ['BeamLoads', 'SaveData']),
                             n_load_steps=kwargs.get('n_load_steps', 5),
-                            nonlifting_body_interactions=nonlifting_body_interactions
+                            nonlifting_body_interactions=nonlifting_body_interactions,
+                            use_dynamic_thrust_input=kwargs.get('use_dynamic_thrust_input', False)
                             )
     if kwargs.get('thrust_input_settings', None):
         thrust_input_settings = kwargs.get('thrust_input_settings', {'thrust_input_file':None})
