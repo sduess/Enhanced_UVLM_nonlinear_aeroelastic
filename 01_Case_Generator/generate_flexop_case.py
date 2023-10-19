@@ -139,7 +139,7 @@ def generate_flexop_case(u_inf,
             raise
         thrust_input = np.loadtxt(thrust_input_settings['thrust_input_file'])
         print("thrust input = ", thrust_input)
-        generate_thrust_input(case_name, cases_route,thrust_input)
+        generate_thrust_input(case_name, cases_route,thrust_input, flexop_model.structure.n_node)
 
     flexop_model.create_settings(settings)
     return flexop_model
@@ -155,9 +155,9 @@ def generate_polar_arrays(airfoils):
             out_data[airfoil_index][:, 0] *= np.pi / 180
     return out_data
 
-def generate_thrust_input(case_name, route, thrust_timeseries):
+def generate_thrust_input(case_name, route, thrust_timeseries, n_nodes):
     import h5py as h5
-    dynamic_forces_time = np.zeros((np.shape(thrust_timeseries)[0], 1, 6))
-    dynamic_forces_time[:, 0, 0] = thrust_timeseries
+    dynamic_forces_time = np.zeros((np.shape(thrust_timeseries)[0], n_nodes, 6))
+    dynamic_forces_time[:, 0, 1] = thrust_timeseries
     with h5.File(route + '/' + case_name + '.dyn.h5', 'a') as h5file:
         h5file.create_dataset('dynamic_forces', data=dynamic_forces_time)
