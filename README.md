@@ -2,7 +2,7 @@
 
 This repository contains the scripts and code used for the SHARPy simulations obtained for the results shown in the journal paper
 
-[1] Duessler, S., & Palacios, R.. Enhanced Unsteady Vortex Lattice Aerodynamics for Nonlinear Flexible Aircraft Dynamic Simulation. AIAA Journal, 2023. *To appear*
+[1] Duessler, S., & Palacios, R.. Enhanced Unsteady Vortex Lattice Aerodynamics for Nonlinear Flexible Aircraft Dynamic Simulation. AIAA Journal, 2023. [https://doi.org/10.2514/1.J063174](https://doi.org/10.2514/1.J063174)
 
 This paper discusses several modelling extensions and numerical improvements to the unsteady vortex-lattice method used for the simulation of very flexible aircraft dynamics.  These enhancements include:
 * Fuselage aerodynamics are included by means of linear source panels.
